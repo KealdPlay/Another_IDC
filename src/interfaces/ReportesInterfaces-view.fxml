@@ -31,7 +31,7 @@
       <HBox alignment="CENTER" spacing="30.0" style="-fx-background-color: #1a1a1a;">
          <children>
             <!-- Tarjeta Reporte Mensual -->
-            <VBox fx:id="monthlyCard" alignment="TOP_LEFT" maxHeight="400.0" maxWidth="300.0" minHeight="400.0" minWidth="300.0"  prefHeight="400.0" prefWidth="300.0" style="-fx-background-color: #2a2a2a; -fx-background-radius: 15; -fx-cursor: hand;">
+            <VBox fx:id="monthlyCard" alignment="TOP_LEFT" maxHeight="400.0" maxWidth="300.0" minHeight="400.0" minWidth="300.0"  prefHeight="400.0" prefWidth="300.0" style="-fx-background-color: #2a2a2a; -fx-background-radius: 15;">
                <children>
                   <Label text="Reporte Mensual" textFill="#FFFFFF">
                      <font>
@@ -53,7 +53,7 @@
             </VBox>
             
             <!-- Tarjeta Reporte de Bajo Stock -->
-            <VBox fx:id="lowStockCard" alignment="TOP_LEFT" maxHeight="400.0" maxWidth="300.0" minHeight="400.0" minWidth="300.0" prefHeight="400.0" prefWidth="300.0" style="-fx-background-color: #2a2a2a; -fx-background-radius: 15; -fx-cursor: hand;">
+            <VBox fx:id="lowStockCard" alignment="TOP_LEFT" maxHeight="400.0" maxWidth="300.0" minHeight="400.0" minWidth="300.0" prefHeight="400.0" prefWidth="300.0" style="-fx-background-color: #2a2a2a; -fx-background-radius: 15;">
                <children>
                   <Label text="Reporte de Bajo Stock" textFill="#FFFFFF">
                      <font>
@@ -75,7 +75,7 @@
             </VBox>
             
             <!-- Tarjeta Reporte de Sobre Stock -->
-            <VBox fx:id="overStockCard" alignment="TOP_LEFT" maxHeight="400.0" maxWidth="300.0" minHeight="400.0" minWidth="300.0" prefHeight="400.0" prefWidth="300.0" style="-fx-background-color: #2a2a2a; -fx-background-radius: 15; -fx-cursor: hand;">
+            <VBox fx:id="overStockCard" alignment="TOP_LEFT" maxHeight="400.0" maxWidth="300.0" minHeight="400.0" minWidth="300.0" prefHeight="400.0" prefWidth="300.0" style="-fx-background-color: #2a2a2a; -fx-background-radius: 15;">
                <children>
                   <Label text="Reporte de Sobre Stock" textFill="#FFFFFF">
                      <font>

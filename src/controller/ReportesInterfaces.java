@@ -53,9 +53,8 @@ public class ReportesInterfaces extends Application {
         }
     }
     
-    // Constructor para uso independiente
     public ReportesInterfaces() {
-        // Constructor vacío para compatibilidad
+
     }
     
     // Método para mostrar la ventana desde otra clase
@@ -68,29 +67,28 @@ public class ReportesInterfaces extends Application {
         }
     }
     
-    private void initComponents(Stage stage) throws IOException {
-        // Cargar el archivo FXML
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ReportsFrame.fxml"));
-        loader.setController(this);
-        BorderPane root = loader.load();
-        
-        stage.setTitle("IDC - Reportes de Inventario");
-        
-        // Obtener dimensiones de la pantalla
-        Screen screen = Screen.getPrimary();
-        double screenWidth = screen.getBounds().getWidth();
-        double screenHeight = screen.getBounds().getHeight();
-        
-        // Crear la escena
-        Scene scene = new Scene(root, screenWidth, screenHeight);
-        stage.setScene(scene);
-        stage.setMaximized(true);
-        
-        // Configurar efectos hover 
-        setupCardHoverEffects();
-        
-        stage.show();
-    }
+private void initComponents(Stage stage) throws IOException {
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/ReportesInterfaces-view.fxml"));
+    loader.setController(this);
+    BorderPane root = loader.load();
+    
+    stage.setTitle("IDC - Reportes de Inventario");
+    
+    // Obtener dimensiones de la pantalla
+    Screen screen = Screen.getPrimary();
+    double screenWidth = screen.getBounds().getWidth();
+    double screenHeight = screen.getBounds().getHeight();
+    
+    // Crear la escena
+    Scene scene = new Scene(root, screenWidth, screenHeight);
+    stage.setScene(scene);
+    stage.setMaximized(true);
+    
+    // Configurar efectos hover 
+    setupCardHoverEffects();
+    
+    stage.show();
+}
     
     @FXML
     private void initialize() {
@@ -99,7 +97,6 @@ public class ReportesInterfaces extends Application {
     }
     
     private void loadReportsData() {
-        // Cargar datos reales en cada tarjeta usando tus métodos existentes
         monthlyContent.setText(getMonthlyReportDetails());
         lowStockContent.setText(getLowStockReportDetails());
         overStockContent.setText(getOverStockReportDetails());
@@ -139,7 +136,7 @@ public class ReportesInterfaces extends Application {
 
     private String getMonthlyReportDetails() {
         StringBuilder report = new StringBuilder();
-        report.append("=== REPORTE MENSUAL DE INVENTARIO ===\n\n");
+        report.append(" REPORTE MENSUAL DE INVENTARIO \n\n");
         report.append("Fecha: ").append(LocalDate.now()).append("\n");
         report.append("Hora: ").append(LocalTime.now().toString().substring(0, 8)).append("\n\n");
         
@@ -161,7 +158,7 @@ public class ReportesInterfaces extends Application {
     
     private String getLowStockReportDetails() {
         StringBuilder report = new StringBuilder();
-        report.append("=== REPORTE DE PRODUCTOS CON BAJO STOCK ===\n\n");
+        report.append(" REPORTE DE PRODUCTOS CON BAJO STOCK \n\n");
         report.append("Fecha: ").append(LocalDate.now()).append("\n\n");
         
         ProductoDAO productoDAO = new ProductoDAO();        
@@ -199,7 +196,7 @@ public class ReportesInterfaces extends Application {
     
     private String getOverStockReportDetails() {
         StringBuilder report = new StringBuilder();
-        report.append("=== REPORTE DE PRODUCTOS CON SOBRE STOCK ===\n\n");
+        report.append(" REPORTE DE PRODUCTOS CON SOBRE STOCK \n\n");
         report.append("Fecha: ").append(LocalDate.now()).append("\n\n");
         
         ProductoDAO productoDAO = new ProductoDAO();
