@@ -3,7 +3,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
-import javafx.stage.Screen;
 
 public class Main extends Application {
     
@@ -15,9 +14,9 @@ public class Main extends Application {
         stage.setTitle("Sistema de Autenticación");
         stage.setScene(scene);
         stage.setResizable(true);
-        Screen screen = Screen.getPrimary();
-        double screenWidth = screen.getBounds().getWidth();
-        double screenHeight = screen.getBounds().getHeight();
+        stage.setMaximized(true);
+        stage.setIconified(false);
+        
         stage.show();
     }
 
