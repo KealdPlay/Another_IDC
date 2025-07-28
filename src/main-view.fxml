@@ -24,8 +24,8 @@
                   <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
                </padding>
                <children>
-                  <Label prefHeight="17.0" prefWidth="68.0" text="Label" />
-                  <Label fx:id="lblBienvenida" text="Bienvenido" textFill="WHITE">
+                  <Label prefHeight="17.0" prefWidth="68.0" text="" />
+                  <Label fx:id="lblBienvenida" text="Bienvenida" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="28.0" />
                      </font>

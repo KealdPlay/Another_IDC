@@ -7,14 +7,11 @@ import entidades.UsuarioConfiguracion;
 import java.sql.*;
 
 public class UsuariosConfDAO {
-
+        
     public UsuarioConfiguracion obtenerUsuarioPorId(int id) {
         UsuarioConfiguracion usuario = null;
         String query = """
-            SELECT u.id, u.nombre, u.correo, u.contrasena, f.id AS foto_id, f.direccion_foto
-            FROM usuarios u
-            JOIN foto f ON u.foto_id = f.id
-            WHERE u.id = ?
+            SELECT * FROM foto_perfil WHERE id_imagen = ?
         """;
 
         try (Connection conn = Conexion.getInstance().getConnection();

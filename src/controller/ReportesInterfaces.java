@@ -125,13 +125,29 @@ private void initComponents(Stage stage) throws IOException {
         });
     }
     
-    @FXML
-    private void goBack() {
-        // para regresar a la ventana anterior
-        System.out.println("Regresar a ventana anterior");
-        Stage stage = (Stage) backButton.getScene().getWindow();
-        stage.close();
+@FXML
+private void goBack() {
+    try {
+        // Cargar la ventana principal
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
+        Scene scene = new Scene(loader.load());
+        
+        // Crear nueva ventana para main-view
+        Stage stage = new Stage();
+        stage.setTitle("Sistema Principal");
+        stage.setScene(scene);
+        stage.setMaximized(true); // Para que se abra maximizada
+        stage.show();
+        
+        // Cerrar la ventana actual (ReportesInterfaces-view)
+        Stage currentStage = (Stage) backButton.getScene().getWindow();
+        currentStage.close();
+        
+    } catch (IOException e) {
+        System.err.println("Error al cargar la ventana principal: " + e.getMessage());
+        e.printStackTrace();
     }
+}
     
 
     private String getMonthlyReportDetails() {
