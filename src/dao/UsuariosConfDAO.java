@@ -11,7 +11,11 @@ public class UsuariosConfDAO {
     public UsuarioConfiguracion obtenerUsuarioPorId(int id) {
         UsuarioConfiguracion usuario = null;
         String query = """
-            SELECT * FROM foto_perfil WHERE id_imagen = ?
+             SELECT u.id, u.nombre, u.correo, u.contrasena, 
+                               fp.foto_id, fp.direccion_foto 
+                        FROM usuarios u 
+                        LEFT JOIN foto_perfil fp ON u.id = fp.id_imagen 
+                        WHERE u.id = ?
         """;
 
         try (Connection conn = Conexion.getInstance().getConnection();
@@ -21,10 +25,13 @@ public class UsuariosConfDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                Foto foto = new Foto(
-                        rs.getInt("foto_id"),
-                        rs.getString("direccion_foto")
-                );
+                Foto foto = null;
+                  if (rs.getObject("foto_id") != null) {
+                    foto = new Foto(
+                            rs.getInt("foto_id"),
+                            rs.getString("direccion_foto")
+                    );
+                }
 
                 usuario = new UsuarioConfiguracion(
                         rs.getInt("id"),
@@ -37,6 +44,7 @@ public class UsuariosConfDAO {
 
         } catch (SQLException e) {
             System.err.println("Error al obtener usuario: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return usuario;
@@ -56,6 +64,25 @@ public class UsuariosConfDAO {
 
         } catch (SQLException e) {
             System.err.println("Error al actualizar usuario: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+       // Método adicional para actualizar la foto del usuario
+    public boolean actualizarFotoUsuario(int userId, String rutaFoto) {
+        String query = "UPDATE foto_perfil SET direccion_foto = ? WHERE id_imagen = ?";
+        try (Connection conn = Conexion.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, rutaFoto);
+            stmt.setInt(2, userId);
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar foto: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return false;

@@ -1,6 +1,7 @@
 package controller;
 
 import dao.ProductoDAO;
+import entidades.Usuarios;
 import entidades.Producto;
 import javafx.application.Application;
 import javafx.fxml.FXML;
@@ -44,6 +45,14 @@ public class ReportesInterfaces extends Application {
     @FXML
     private Label overStockContent;
     
+ // Variable para mantener referencia al usuario actual
+    private Usuarios usuarioActual;
+    
+    // Método para inicializar con usuario
+    public void inicializarConUsuario(Usuarios usuario) {
+        this.usuarioActual = usuario;
+    }
+    
     @Override
     public void start(Stage primaryStage) {
         try {
@@ -56,7 +65,6 @@ public class ReportesInterfaces extends Application {
     public ReportesInterfaces() {
 
     }
-    
     // Método para mostrar la ventana desde otra clase
     public void show() {
         try {
@@ -126,28 +134,34 @@ private void initComponents(Stage stage) throws IOException {
     }
     
 @FXML
-private void goBack() {
-    try {
-        // Cargar la ventana principal
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
-        Scene scene = new Scene(loader.load());
-        
-        // Crear nueva ventana para main-view
-        Stage stage = new Stage();
-        stage.setTitle("Sistema Principal");
-        stage.setScene(scene);
-        stage.setMaximized(true); // Para que se abra maximizada
-        stage.show();
-        
-        // Cerrar la ventana actual (ReportesInterfaces-view)
-        Stage currentStage = (Stage) backButton.getScene().getWindow();
-        currentStage.close();
-        
-    } catch (IOException e) {
-        System.err.println("Error al cargar la ventana principal: " + e.getMessage());
-        e.printStackTrace();
+    private void goBack() {
+        try {
+            // Cargar la ventana principal
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
+            Scene scene = new Scene(loader.load());
+            
+            // Obtener el controlador y pasarle el usuario
+            MainController mainController = loader.getController();
+            if (usuarioActual != null) {
+                mainController.inicializarConUsuario(usuarioActual);
+            }
+            
+            // Crear nueva ventana para main-view
+            Stage stage = new Stage();
+            stage.setTitle("Sistema Principal");
+            stage.setScene(scene);
+            stage.setMaximized(true); // Para que se abra maximizada
+            stage.show();
+            
+            // Cerrar la ventana actual (ReportesInterfaces-view)
+            Stage currentStage = (Stage) backButton.getScene().getWindow();
+            currentStage.close();
+            
+        } catch (IOException e) {
+            System.err.println("Error al cargar la ventana principal: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-}
     
 
     private String getMonthlyReportDetails() {

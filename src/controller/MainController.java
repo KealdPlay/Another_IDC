@@ -60,6 +60,7 @@ public void handleReportes(ActionEvent event) {
         
         // Obtener el controlador de ReportesInterfaces
         ReportesInterfaces reportesController = loader.getController();
+        reportesController.inicializarConUsuario(usuarioActual);
         
         // Crear nueva ventana
         Stage stage = new Stage();

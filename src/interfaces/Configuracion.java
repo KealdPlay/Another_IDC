@@ -3,6 +3,7 @@ package interfaces;
 import controller.sesion;
 import dao.UsuariosConfDAO;
 import entidades.UsuarioConfiguracion;
+import entidades.Foto;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -99,6 +100,10 @@ public class Configuracion extends Application {
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             avatar.setImage(new Image(file.toURI().toString()));
+            usuario.getFoto().setDireccionFoto(file.getAbsolutePath());
+          if (usuario.getFoto() == null) {
+                usuario.setFoto(new Foto());
+            }
             usuario.getFoto().setDireccionFoto(file.getAbsolutePath());
         }
     }
