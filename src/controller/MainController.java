@@ -1,4 +1,3 @@
-
 package controller;
 
 import entidades.Usuarios;
@@ -54,61 +53,62 @@ public class MainController {
         }
     }
     
-  @FXML
-public void handleReportes(ActionEvent event) {
-    try {
-        // Cargar el archivo FXML con la ruta correcta
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/ReportesInterfaces-view.fxml"));
-        Scene scene = new Scene(loader.load());
-        
-        // Obtener el controlador de ReportesInterfaces
-        ReportesInterfaces reportesController = loader.getController();
-        reportesController.inicializarConUsuario(usuarioActual);
-        
-        // Crear nueva ventana
-        Stage stage = new Stage();
-        stage.setTitle("IDC - Reportes de Inventario");
-        stage.setScene(scene);
-        stage.setMaximized(true); // Para que se abra maximizada
-        stage.show();
-        
-        // Cerrar la ventana actual (main-view)
-        Stage currentStage = (Stage) btnReportes.getScene().getWindow();
-        currentStage.close();
-        
-    } catch (IOException e) {
-        System.err.println("Error al cargar la ventana de reportes: " + e.getMessage());
-        e.printStackTrace();
+    @FXML
+    public void handleReportes(ActionEvent event) {
+        try {
+            // Cargar el archivo FXML con la ruta correcta
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/ReportesInterfaces-view.fxml"));
+            Scene scene = new Scene(loader.load());
+            
+            // Obtener el controlador de ReportesInterfaces
+            ReportesInterfaces reportesController = loader.getController();
+            reportesController.inicializarConUsuario(usuarioActual);
+            
+            // Crear nueva ventana
+            Stage stage = new Stage();
+            stage.setTitle("IDC - Reportes de Inventario");
+            stage.setScene(scene);
+            stage.setMaximized(true); // Para que se abra maximizada
+            stage.show();
+            
+            // Cerrar la ventana actual (main-view)
+            Stage currentStage = (Stage) btnReportes.getScene().getWindow();
+            currentStage.close();
+            
+        } catch (IOException e) {
+            System.err.println("Error al cargar la ventana de reportes: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-}
     
-@FXML
-public void handleConfiguracion(ActionEvent event) {
-    try {
-        // Cargar el archivo FXML con la ruta correcta
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/ReportesInterfaces-view.fxml"));
-        Scene scene = new Scene(loader.load());
-        
-        // Obtener el controlador de ReportesInterfaces
-        ReportesInterfaces reportesController = loader.getController();
-        reportesController.inicializarConUsuario(usuarioActual);
-        
-        // Crear nueva ventana
-        Stage stage = new Stage();
-        stage.setTitle("IDC - Reportes de Inventario");
-        stage.setScene(scene);
-        stage.setMaximized(true); // Para que se abra maximizada
-        stage.show();
-        
-        // Cerrar la ventana actual (main-view)
-        Stage currentStage = (Stage) btnReportes.getScene().getWindow();
-        currentStage.close();
-        
-    } catch (IOException e) {
-        System.err.println("Error al cargar la ventana de reportes: " + e.getMessage());
-        e.printStackTrace();
+    @FXML
+    public void handleConfiguracion(ActionEvent event) {
+        try {
+            // Cargar el archivo FXML con la ruta correcta
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/ReportesInterfaces-view.fxml"));
+            Scene scene = new Scene(loader.load());
+            
+            // Obtener el controlador de ReportesInterfaces
+            ReportesInterfaces reportesController = loader.getController();
+            reportesController.inicializarConUsuario(usuarioActual);
+            
+            // Crear nueva ventana
+            Stage stage = new Stage();
+            stage.setTitle("IDC - Reportes de Inventario");
+            stage.setScene(scene);
+            stage.setMaximized(true); // Para que se abra maximizada
+            stage.show();
+            
+            // Cerrar la ventana actual (main-view)
+            Stage currentStage = (Stage) btnReportes.getScene().getWindow();
+            currentStage.close();
+            
+        } catch (IOException e) {
+            System.err.println("Error al cargar la ventana de reportes: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-}
+    
     public void volverALogin() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/login/app/login-view.fxml"));
@@ -119,12 +119,9 @@ public void handleConfiguracion(ActionEvent event) {
             stage.setScene(scene);
             stage.show();
            
-            
         } catch (IOException e) {
             System.err.println("Error al cargar la ventana de login: " + e.getMessage());
             e.printStackTrace();
         }
     }
-
-
 }

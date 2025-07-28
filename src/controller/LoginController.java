@@ -148,6 +148,7 @@ public class LoginController {
             Stage stage = new Stage();
             stage.setTitle("Sistema Principal - Bienvenido " + usuario.getNombre_usuario());
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
             
             // Cerrar la ventana de login
