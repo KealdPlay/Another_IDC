@@ -4,13 +4,20 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/another_IDC/Another_IDC/src/entidades/Usuarios.java</file>
-            <file>file:/D:/another_IDC/Another_IDC/src/controller/LoginController.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/controller/ReportesInterfaces.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/controller/MainController.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/entidades/Producto.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/interfaces/Configuracion.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/Main.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/controller/SessionManager.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/interfaces/ReportesInterfaces-view.fxml</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/controller/LoginController.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/main-view.fxml</file>
-            <file>file:/D:/another_IDC/Another_IDC/src/interfaces/ReportesInterfaces.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/login-view.fxml</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/entidades/Foto.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/dao/UsuariosConfDAO.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/entidades/UsuarioConfiguracion.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/controller/sesion.java</file>
         </group>
     </open-files>
 </project-private>

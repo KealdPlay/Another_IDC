@@ -9,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import interfaces.Configuracion;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import java.io.IOException;
@@ -22,6 +21,9 @@ public class MainController {
    
     @FXML
     private Button btnReportes;
+    
+    @FXML
+    private Button btnConf;
     
     private Usuarios usuarioActual;
     
@@ -83,29 +85,28 @@ public void handleReportes(ActionEvent event) {
 @FXML
 public void handleConfiguracion(ActionEvent event) {
     try {
-        // Crear una nueva instancia de la ventana de Configuración
-        Configuracion configuracion = new Configuracion();
+        // Cargar el archivo FXML con la ruta correcta
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/ReportesInterfaces-view.fxml"));
+        Scene scene = new Scene(loader.load());
         
-        // Crear nueva ventana (Stage)
+        // Obtener el controlador de ReportesInterfaces
+        ReportesInterfaces reportesController = loader.getController();
+        reportesController.inicializarConUsuario(usuarioActual);
+        
+        // Crear nueva ventana
         Stage stage = new Stage();
+        stage.setTitle("IDC - Reportes de Inventario");
+        stage.setScene(scene);
+        stage.setMaximized(true); // Para que se abra maximizada
+        stage.show();
         
-        // Inicializar la aplicación de configuración con el stage
-        configuracion.start(stage);
+        // Cerrar la ventana actual (main-view)
+        Stage currentStage = (Stage) btnReportes.getScene().getWindow();
+        currentStage.close();
         
-        // Opcional: Cerrar la ventana actual si lo deseas
-         Stage currentStage = (Stage) btnConf.getScene().getWindow();
-         currentStage.close();
-        
-    } catch (Exception e) {
-        System.err.println("Error al cargar la ventana de configuración: " + e.getMessage());
+    } catch (IOException e) {
+        System.err.println("Error al cargar la ventana de reportes: " + e.getMessage());
         e.printStackTrace();
-        
-        // Mostrar alerta de error al usuario
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText("No se pudo abrir la configuración");
-        alert.setContentText("Ha ocurrido un error al intentar abrir la ventana de configuración.");
-        alert.showAndWait();
     }
 }
     public void volverALogin() {
