@@ -1,8 +1,8 @@
-
 package dao;
 
 import database.Conexion;
 import entidades.Producto;
+import entidades.Categoria;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -150,6 +150,108 @@ public class ProductoDAO {
         return productos;
     }
     
+    // ============ MÉTODOS ESPECÍFICOS PARA EL CENTRO DE NOTIFICACIONES ============
+    
+    /**
+     * Calcula el porcentaje general del stock basado en un stock ideal promedio
+     */
+    public double calcularPorcentajeStockGeneral() {
+        // Para calcular un porcentaje general, usaremos la fórmula:
+        // (stock_actual / stock_ideal) * 100
+        // Donde stock_ideal = promedio de stock de todos los productos * 1.5
+        
+        String sql = "SELECT " +
+                    "SUM(stock_producto) as total_actual, " +
+                    "COUNT(*) as total_productos, " +
+                    "AVG(stock_producto) as promedio_stock " +
+                    "FROM productos";
+        
+        try (Statement stmt = conexion.getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            if (rs.next()) {
+                int totalActual = rs.getInt("total_actual");
+                int totalProductos = rs.getInt("total_productos");
+                double promedioStock = rs.getDouble("promedio_stock");
+                
+                if (totalProductos > 0 && promedioStock > 0) {
+                    // Stock ideal = promedio * total de productos * 1.5 (factor de stock óptimo)
+                    double stockIdeal = promedioStock * totalProductos * 1.5;
+                    return Math.min(100, (totalActual / stockIdeal) * 100);
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error al calcular porcentaje de stock: " + e.getMessage());
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Obtiene productos con stock bajo (menos de 30 unidades)
+     */
+    public List<ProductoNotificacion> obtenerProductosParaNotificaciones() {
+        List<ProductoNotificacion> notificaciones = new ArrayList<>();
+        String sql = "SELECT p.nombre_producto, p.stock_producto, c.nombre_categoria " +
+                    "FROM productos p " +
+                    "LEFT JOIN categorias c ON p.id_categoria = c.id_categoria " +
+                    "WHERE p.stock_producto <= 30 " + // Stock bajo
+                    "ORDER BY p.stock_producto ASC " +
+                    "LIMIT 5"; // Máximo 5 notificaciones
+        
+        try (Statement stmt = conexion.getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                String nombre = rs.getString("nombre_producto");
+                int stock = rs.getInt("stock_producto");
+                String categoria = rs.getString("nombre_categoria");
+                
+                ProductoNotificacion notif = new ProductoNotificacion(nombre, stock, categoria);
+                notificaciones.add(notif);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error al obtener productos para notificaciones: " + e.getMessage());
+        }
+        
+        return notificaciones;
+    }
+    
+    /**
+     * Obtiene resumen por categorías para las notificaciones
+     */
+    public List<CategoriaResumen> obtenerResumenCategorias() {
+        List<CategoriaResumen> resumen = new ArrayList<>();
+        String sql = "SELECT c.nombre_categoria, SUM(p.stock_producto) as total_stock " +
+                    "FROM productos p " +
+                    "LEFT JOIN categorias c ON p.id_categoria = c.id_categoria " +
+                    "GROUP BY c.id_categoria, c.nombre_categoria " +
+                    "ORDER BY total_stock DESC " +
+                    "LIMIT 5";
+        
+        try (Statement stmt = conexion.getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                String categoria = rs.getString("nombre_categoria");
+                int totalStock = rs.getInt("total_stock");
+                
+                // Si la categoría es null, usar "Sin categoría"
+                if (categoria == null) categoria = "Sin categoría";
+                
+                CategoriaResumen cat = new CategoriaResumen(categoria, totalStock);
+                resumen.add(cat);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error al obtener resumen de categorías: " + e.getMessage());
+        }
+        
+        return resumen;
+    }
+    
     //VERIFICACION DE EXISTENCIA
     public boolean existe(int id) {
         String sql = "SELECT COUNT(*) FROM productos WHERE id_producto = ?";
@@ -179,5 +281,39 @@ public class ProductoDAO {
             rs.getInt("id_categoria"),
             rs.getInt("id_proveedor")
         );
+    }
+    
+    // ============ CLASES AUXILIARES PARA NOTIFICACIONES ============
+    
+    public static class ProductoNotificacion {
+        private String nombre;
+        private int stock;
+        private String categoria;
+        
+        public ProductoNotificacion(String nombre, int stock, String categoria) {
+            this.nombre = nombre;
+            this.stock = stock;
+            this.categoria = categoria;
+        }
+        
+        public String getNombre() { return nombre; }
+        public int getStock() { return stock; }
+        public String getCategoria() { return categoria; }
+        
+        public boolean isStockCritico() { return stock <= 10; }
+        public boolean isStockBajo() { return stock <= 30; }
+    }
+    
+    public static class CategoriaResumen {
+        private String categoria;
+        private int totalStock;
+        
+        public CategoriaResumen(String categoria, int totalStock) {
+            this.categoria = categoria;
+            this.totalStock = totalStock;
+        }
+        
+        public String getCategoria() { return categoria; }
+        public int getTotalStock() { return totalStock; }
     }
 }
