@@ -489,13 +489,15 @@ private void inicializarMenuLateral() {
                 clockTimeline.stop();
             }
             
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("login-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/login-view.fxml"));
             Scene scene = new Scene(loader.load());
             
             Stage stage = new Stage();
             stage.setTitle("Sistema de Autenticación");
             stage.setScene(scene);
             stage.show();
+            Stage currentStage = (Stage) backButton.getScene().getWindow();
+            currentStage.close();
            
         } catch (IOException e) {
             System.err.println("Error al cargar la ventana de login: " + e.getMessage());
