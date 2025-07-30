@@ -146,7 +146,7 @@ public class LoginController {
             mainController.inicializarConUsuario(usuario);
             
             Stage stage = new Stage();
-            stage.setTitle("Sistema Principal - Bienvenido " + usuario.getNombre_usuario());
+            stage.setTitle("Sistema Principal - Bienvenida, " + usuario.getNombre_usuario());
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();

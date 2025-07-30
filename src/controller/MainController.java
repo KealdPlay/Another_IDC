@@ -48,6 +48,9 @@ public class MainController {
     @FXML
     private Button btnVerMas;
     
+    @FXML
+    private Button btnMenu;
+    
     private Usuarios usuarioActual;
     private ProductoDAO productoDAO;
     private Timeline clockTimeline;
@@ -62,6 +65,24 @@ public class MainController {
         productoDAO = new ProductoDAO();
         inicializarReloj();
         cargarCentroNotificaciones();
+        try {
+        String imagePath = getClass().getResource("/images/menu_icon.png").toExternalForm();
+        
+        btnMenu.setStyle(
+            "-fx-background-image: url('" + imagePath + "'); " +
+            "-fx-background-repeat: no-repeat; " +
+            "-fx-background-position: center; " +
+            "-fx-border-color: #1e1e1e;"+
+            "-fx-background-size: contain;"
+        );
+        
+        // Establecer tamaño del botón
+        btnMenu.setPrefWidth(41);
+        btnMenu.setPrefHeight(41);
+        
+    } catch (Exception e) {
+        System.err.println("Error cargando imagen: " + e.getMessage());
+    }
     }
     
     private void cargarInformacionUsuario() {
@@ -156,7 +177,7 @@ public class MainController {
             
             // Obtener los primeros 5 productos de la base de datos
             List<Producto> productos = productoDAO.obtenerTodos();
-            int limite = Math.min(5, productos.size());
+            int limite = Math.min(8, productos.size());
             
             for (int i = 0; i < limite; i++) {
                 Producto producto = productos.get(i);
