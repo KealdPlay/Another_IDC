@@ -495,8 +495,9 @@ private void inicializarMenuLateral() {
             Stage stage = new Stage();
             stage.setTitle("Sistema de Autenticación");
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
-            Stage currentStage = (Stage) backButton.getScene().getWindow();
+            Stage currentStage = (Stage) btnReportes.getScene().getWindow();
             currentStage.close();
            
         } catch (IOException e) {

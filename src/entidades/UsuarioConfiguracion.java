@@ -5,16 +5,16 @@ public class UsuarioConfiguracion {
     private String nombre;
     private String correo;
     private String contrasena;
-    private Foto foto;
+
 
     public UsuarioConfiguracion() {}
 
-    public UsuarioConfiguracion(int id, String nombre, String correo, String contrasena, Foto foto) {
+    public UsuarioConfiguracion(int id, String nombre, String correo, String contrasena) {
         this.id = id;
         this.nombre = nombre;
         this.correo = correo;
         this.contrasena = contrasena;
-        this.foto = foto;
+
     }
 
     public int getId() {
@@ -32,11 +32,7 @@ public class UsuarioConfiguracion {
     public String getContrasena() {
         return contrasena;
     }
-
-    public Foto getFoto() {
-        return foto;
-    }
-
+    
     public void setId(int id) {
         this.id = id;
     }
@@ -51,9 +47,5 @@ public class UsuarioConfiguracion {
 
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
-    }
-
-    public void setFoto(Foto foto) {
-        this.foto = foto;
     }
 }
