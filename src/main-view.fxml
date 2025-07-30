@@ -11,7 +11,9 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
+<children>
+<BorderPane>
    <top>
       <!-- Barra superior -->
       <VBox style="-fx-background-color: #1e1e1e;">
@@ -148,3 +150,12 @@
       </HBox>
    </center>
 </BorderPane>
+<!-- Overlay del menú lateral (se muestra encima del contenido principal) -->
+      <Pane fx:id="overlayPane" visible="false">
+         <children>
+            <!-- Menú lateral -->
+            <VBox fx:id="sideMenu" prefHeight="800.0" prefWidth="280.0" />
+         </children>
+      </Pane>
+   </children>
+</StackPane>

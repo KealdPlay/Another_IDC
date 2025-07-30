@@ -6,6 +6,7 @@ import entidades.Usuarios;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.io.IOException;
@@ -50,10 +52,17 @@ public class MainController {
     
     @FXML
     private Button btnMenu;
+
+    @FXML
+    private Pane overlayPane;
+    
+    @FXML
+    private VBox sideMenu;
     
     private Usuarios usuarioActual;
     private ProductoDAO productoDAO;
     private Timeline clockTimeline;
+    private boolean menuVisible = false;
     
     public void inicializarConUsuario(Usuarios usuario) {
         this.usuarioActual = usuario;
@@ -65,6 +74,7 @@ public class MainController {
         productoDAO = new ProductoDAO();
         inicializarReloj();
         cargarCentroNotificaciones();
+        inicializarMenuLateral();
         try {
         String imagePath = getClass().getResource("/images/menu_icon.png").toExternalForm();
         
@@ -87,6 +97,188 @@ public class MainController {
     }
     }
     
+private void inicializarMenuLateral() {
+        if (overlayPane != null && sideMenu != null) {
+            // Configurar el overlay (fondo semi-transparente)
+            overlayPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+            overlayPane.setVisible(false);
+            overlayPane.setOnMouseClicked(e -> ocultarMenu());
+            
+            // Configurar el menú lateral
+            sideMenu.setStyle(
+                "-fx-background-color: #2d2d2d; " +
+                "-fx-background-radius: 0 10 10 0; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 2, 0);"
+            );
+            
+            // Inicialmente oculto (fuera de la pantalla)
+            sideMenu.setTranslateX(-280);
+            
+            // Configurar los elementos del menú
+            configurarMenuItems();
+        }
+    }
+    
+    private void configurarMenuItems() {
+        if (sideMenu == null) return;
+        
+        sideMenu.getChildren().clear();
+        sideMenu.setSpacing(0);
+        sideMenu.setPrefWidth(280);
+        
+        // Header del menú con información del usuario
+        VBox headerSection = new VBox();
+        headerSection.setStyle("-fx-background-color: #1e1e1e; -fx-padding: 20;");
+        headerSection.setSpacing(10);
+        
+        Label lblUsuario = new Label(usuarioActual != null ? usuarioActual.getNombre_usuario() : "Usuario");
+        lblUsuario.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
+        
+        Label lblRol = new Label("Administrador"); // Puedes obtener esto del usuario
+        lblRol.setStyle("-fx-text-fill: #888888; -fx-font-size: 12px;");
+        
+        headerSection.getChildren().addAll(lblUsuario, lblRol);
+        
+        // Separador
+        Pane separator = new Pane();
+        separator.setStyle("-fx-background-color: #404040;");
+        separator.setPrefHeight(1);
+        separator.setMaxHeight(1);
+        
+        // Opciones del menú
+        VBox menuOptions = new VBox();
+        menuOptions.setSpacing(5);
+        menuOptions.setStyle("-fx-padding: 20 0;");
+        
+        // Crear botones del menú
+        Button btnInicio = crearBotonMenu("🏠 Inicio", this::irAInicio);
+        Button btnInventario = crearBotonMenu("📦 Gestión de Inventario", this::irAInventario);
+        Button btnReportesMenu = crearBotonMenu("📊 Reportes", this::irAReportes);
+        Button btnProveedores = crearBotonMenu("🏢 Proveedores", this::irAProveedores);
+        Button btnUsuarios = crearBotonMenu("👥 Usuarios", this::irAUsuarios);
+        Button btnConfiguracion = crearBotonMenu("⚙️ Configuración", this::irAConfiguracion);
+        
+        menuOptions.getChildren().addAll(
+            btnInicio, btnInventario, btnReportesMenu, 
+            btnProveedores, btnUsuarios, btnConfiguracion
+        );
+        
+        // Sección inferior con botón de cerrar sesión
+        VBox footerSection = new VBox();
+        footerSection.setStyle("-fx-padding: 20; -fx-background-color: #1e1e1e;");
+        
+        Button btnCerrarSesion = crearBotonMenu("🚪 Cerrar Sesión", this::cerrarSesion);
+        btnCerrarSesion.setStyle(btnCerrarSesion.getStyle() + "-fx-text-fill: #ff6b6b;");
+        
+        footerSection.getChildren().add(btnCerrarSesion);
+        
+        // Spacer para empujar el footer hacia abajo
+        Pane spacer = new Pane();
+        VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+        
+        sideMenu.getChildren().addAll(
+            headerSection, separator, menuOptions, spacer, footerSection
+        );
+    }
+    
+    private Button crearBotonMenu(String texto, Runnable accion) {
+        Button btn = new Button(texto);
+        btn.setStyle(
+            "-fx-background-color: transparent; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-size: 14px; " +
+            "-fx-alignment: center-left; " +
+            "-fx-padding: 15 20; " +
+            "-fx-pref-width: 240; " +
+            "-fx-cursor: hand;"
+        );
+        
+        // Efectos hover
+        btn.setOnMouseEntered(e -> 
+            btn.setStyle(btn.getStyle() + "-fx-background-color: #404040;")
+        );
+        btn.setOnMouseExited(e -> 
+            btn.setStyle(btn.getStyle().replace("-fx-background-color: #404040;", ""))
+        );
+        
+        btn.setOnAction(e -> {
+            ocultarMenu();
+            accion.run();
+        });
+        
+        return btn;
+    }
+    
+    @FXML
+    public void toggleMenu() {
+        if (menuVisible) {
+            ocultarMenu();
+        } else {
+            mostrarMenu();
+        }
+    }
+    
+    private void mostrarMenu() {
+        if (overlayPane != null && sideMenu != null) {
+            overlayPane.setVisible(true);
+            
+            TranslateTransition slideIn = new TranslateTransition(Duration.millis(300), sideMenu);
+            slideIn.setFromX(-280);
+            slideIn.setToX(0);
+            slideIn.play();
+            
+            menuVisible = true;
+        }
+    }
+    
+    private void ocultarMenu() {
+        if (overlayPane != null && sideMenu != null) {
+            TranslateTransition slideOut = new TranslateTransition(Duration.millis(300), sideMenu);
+            slideOut.setFromX(0);
+            slideOut.setToX(-280);
+            slideOut.setOnFinished(e -> overlayPane.setVisible(false));
+            slideOut.play();
+            
+            menuVisible = false;
+        }
+    }
+    
+    // Métodos para las acciones del menú
+    private void irAInicio() {
+        System.out.println("Ir a Inicio");
+        // Ya estamos en inicio, no hacer nada
+    }
+    
+    private void irAInventario() {
+        System.out.println("Ir a Inventario");
+        handleGestionInventario(null);
+    }
+    
+    private void irAReportes() {
+        System.out.println("Ir a Reportes");
+        handleReportes(null);
+    }
+    
+    private void irAProveedores() {
+        System.out.println("Ir a Proveedores");
+        // Implementar navegación a proveedores
+    }
+    
+    private void irAUsuarios() {
+        System.out.println("Ir a Usuarios");
+        // Implementar navegación a usuarios
+    }
+    
+    private void irAConfiguracion() {
+        System.out.println("Ir a Configuración");
+        // Implementar navegación a configuración
+    }
+    
+    private void cerrarSesion() {
+        System.out.println("Cerrando sesión...");
+        volverALogin();
+    }
+
     private void cargarInformacionUsuario() {
         if (usuarioActual != null) {
             lblBienvenida.setText("Bienvenida, " + usuarioActual.getNombre_usuario() + ".");
@@ -297,7 +489,7 @@ public class MainController {
                 clockTimeline.stop();
             }
             
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/login/app/login-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("login-view.fxml"));
             Scene scene = new Scene(loader.load());
             
             Stage stage = new Stage();
