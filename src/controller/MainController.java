@@ -3,6 +3,7 @@ package controller;
 import dao.ProductoDAO;
 import entidades.Producto;
 import entidades.Usuarios;
+import interfaces.Configuracion;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -271,8 +272,16 @@ private void inicializarMenuLateral() {
     
     private void irAConfiguracion() {
         System.out.println("Ir a Configuración");
-        // Implementar navegación a configuración
+        // En tu controlador o clase donde quieres abrir Configuracion
+    try {
+        Configuracion configuracion = new Configuracion();
+        Stage nuevaVentana = new Stage();
+        configuracion.start(nuevaVentana);
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+}
+
     
     private void cerrarSesion() {
         System.out.println("Cerrando sesión...");

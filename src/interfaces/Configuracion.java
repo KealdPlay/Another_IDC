@@ -1,8 +1,8 @@
 package interfaces;
 
 import controller.sesion;
-import dao.UsuariosConfDAO;
-import entidades.UsuarioConfiguracion;
+import dao.UsuarioDAO;
+import entidades.Usuarios;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -26,12 +26,17 @@ public class Configuracion extends Application {
     private PasswordField txtContrasena;
     private ImageView avatar;
     private File imagenSeleccionada;
-    private UsuarioConfiguracion usuario;
+    private Usuarios usuario;
 
     @Override
     public void start(Stage primaryStage) {
-        UsuariosConfDAO dao = new UsuariosConfDAO();
-        usuario = dao.obtenerUsuarioPorId(sesion.idUsuarioActivo);
+        UsuarioDAO dao = new UsuarioDAO();
+        usuario = dao.buscarUsuarioPorId(sesion.idUsuarioActivo);
+
+        if (usuario == null) {
+            new Alert(Alert.AlertType.ERROR, "No se pudo cargar la información del usuario.").showAndWait();
+            return;
+        }
 
         Label lblTitulo = new Label("Configuración");
         lblTitulo.setFont(Font.font("Arial", 20));
@@ -62,14 +67,14 @@ public class Configuracion extends Application {
         Button btnCambiarFoto = new Button("Cambiar Foto");
         btnCambiarFoto.setOnAction(e -> cambiarFoto(primaryStage));
  
-        txtNombre = new TextField(usuario.getNombre());
+        txtNombre = new TextField(usuario.getNombre_usuario());
         estiloCampo(txtNombre);
  
-        txtCorreo = new TextField(usuario.getCorreo());
+        txtCorreo = new TextField(usuario.getCorreo_usuario());
         estiloCampo(txtCorreo);
  
         txtContrasena = new PasswordField();
-        txtContrasena.setText(usuario.getContrasena());
+        txtContrasena.setText(usuario.getContraseña_usuario());
         estiloCampo(txtContrasena);
  
         Button btnGuardar = new Button("Aceptar");
@@ -127,18 +132,40 @@ public class Configuracion extends Application {
     }
  
     private void guardarCambios() {
-        String correo = txtCorreo.getText();
- 
-        if (!correo.contains("@")) {
-            new Alert(Alert.AlertType.WARNING, "El correo debe contener '@'.").showAndWait();
+        String correo = txtCorreo.getText().trim();
+        String nombre = txtNombre.getText().trim();
+        String contrasena = txtContrasena.getText();
+        
+        // Validaciones
+        if (nombre.isEmpty()) {
+            new Alert(Alert.AlertType.WARNING, "El nombre no puede estar vacío.").showAndWait();
+            return;
+        }
+        
+        if (correo.isEmpty() || !correo.contains("@")) {
+            new Alert(Alert.AlertType.WARNING, "Ingrese un correo válido.").showAndWait();
+            return;
+        }
+        
+        if (contrasena.isEmpty()) {
+            new Alert(Alert.AlertType.WARNING, "La contraseña no puede estar vacía.").showAndWait();
+            return;
+        }
+        
+        UsuarioDAO dao = new UsuarioDAO();
+        
+        // Verificar si el correo ya existe para otro usuario
+        if (!correo.equals(usuario.getCorreo_usuario()) && 
+            dao.existeCorreoUsuarioExceptoActual(correo, usuario.getId_usuario())) {
+            new Alert(Alert.AlertType.WARNING, "Este correo ya está registrado por otro usuario.").showAndWait();
             return;
         }
  
-        usuario.setNombre(txtNombre.getText());
-        usuario.setCorreo(txtCorreo.getText());
-        usuario.setContrasena(txtContrasena.getText());
+        // Actualizar los datos del usuario
+        usuario.setNombre_usuario(nombre);
+        usuario.setCorreo_usuario(correo);
+        usuario.setContraseña_usuario(contrasena);
  
-        UsuariosConfDAO dao = new UsuariosConfDAO();
         if (dao.actualizarUsuario(usuario)) {
             new Alert(Alert.AlertType.INFORMATION, "Cambios guardados correctamente.").showAndWait();
         } else {
