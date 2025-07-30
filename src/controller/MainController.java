@@ -73,7 +73,9 @@ public class MainController {
             "-fx-background-repeat: no-repeat; " +
             "-fx-background-position: center; " +
             "-fx-border-color: #1e1e1e;"+
-            "-fx-background-size: contain;"
+            "-fx-background-size: contain;" +
+            "-fx-focus-color: transparent;" +
+            "-fx-faint-focus-color: transparent;" 
         );
         
         // Establecer tamaño del botón
