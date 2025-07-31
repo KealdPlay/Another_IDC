@@ -14,7 +14,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import dao.ProductoDAO;
 import entidades.Producto;
-
+import entidades.Usuarios;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.List;
@@ -28,6 +32,8 @@ public class InventarioController implements Initializable {
     @FXML private GridPane inventoryGrid;
     @FXML private Button addProductButton;
     
+    private Usuarios usuarioActual;
+
     private ProductoDAO productoDAO;
     private static final int COLUMNS = 4; // Número de columnas en el grid
     private DecimalFormat currencyFormat = new DecimalFormat("$#,##0");
@@ -292,10 +298,35 @@ public class InventarioController implements Initializable {
         return card;
     }
     
-    @FXML
-    private void handleBackButton() {
-        System.out.println("Navegando hacia atrás...");
+@FXML
+private void handleBackButton() {
+    try {
+        // Cargar la ventana principal
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
+        Scene scene = new Scene(loader.load());
+        
+        // Obtener el controlador principal
+        MainController mainController = loader.getController();
+        if (usuarioActual != null) {
+            mainController.inicializarConUsuario(usuarioActual);
+        }
+        
+        // Crear nueva ventana
+        Stage stage = new Stage();
+        stage.setTitle("IDC - Sistema Principal");
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+        
+        // Cerrar la ventana actual
+        Stage currentStage = (Stage) backButton.getScene().getWindow();
+        currentStage.close();
+        
+    } catch (IOException e) {
+        System.err.println("Error al regresar a la ventana principal: " + e.getMessage());
+        e.printStackTrace();
     }
+}
     
     @FXML
     private void handleAddProduct() {
@@ -315,4 +346,11 @@ public class InventarioController implements Initializable {
     public void refreshProducts() {
         loadProducts();
     }
+
+
+
+// Método para establecer el usuario actual
+public void setUsuarioActual(Usuarios usuario) {
+    this.usuarioActual = usuario;
+}
 }

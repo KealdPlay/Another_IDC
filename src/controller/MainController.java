@@ -132,7 +132,7 @@ private void inicializarMenuLateral() {
         headerSection.setStyle("-fx-background-color: #1e1e1e; -fx-padding: 20;");
         headerSection.setSpacing(10);
         
-        Label lblUsuario = new Label(usuarioActual != null ? usuarioActual.getNombre_usuario() : "Usuario");
+        Label lblUsuario = new Label(usuarioActual != null ? usuarioActual.getNombre_usuario() : "");
         lblUsuario.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
         
         Label lblRol = new Label("Administrador"); // Puedes obtener esto del usuario
@@ -152,16 +152,10 @@ private void inicializarMenuLateral() {
         menuOptions.setStyle("-fx-padding: 20 0;");
         
         // Crear botones del menú
-        Button btnInicio = crearBotonMenu("🏠 Inicio", this::irAInicio);
-        Button btnInventario = crearBotonMenu("📦 Gestión de Inventario", this::irAInventario);
-        Button btnReportesMenu = crearBotonMenu("📊 Reportes", this::irAReportes);
-        Button btnProveedores = crearBotonMenu("🏢 Proveedores", this::irAProveedores);
-        Button btnUsuarios = crearBotonMenu("👥 Usuarios", this::irAUsuarios);
         Button btnConfiguracion = crearBotonMenu("⚙️ Configuración", this::irAConfiguracion);
         
         menuOptions.getChildren().addAll(
-            btnInicio, btnInventario, btnReportesMenu, 
-            btnProveedores, btnUsuarios, btnConfiguracion
+                btnConfiguracion
         );
         
         // Sección inferior con botón de cerrar sesión
@@ -243,33 +237,7 @@ private void inicializarMenuLateral() {
             menuVisible = false;
         }
     }
-    
-    // Métodos para las acciones del menú
-    private void irAInicio() {
-        System.out.println("Ir a Inicio");
-        // Ya estamos en inicio, no hacer nada
-    }
-    
-    private void irAInventario() {
-        System.out.println("Ir a Inventario");
-        handleGestionInventario(null);
-    }
-    
-    private void irAReportes() {
-        System.out.println("Ir a Reportes");
-        handleReportes(null);
-    }
-    
-    private void irAProveedores() {
-        System.out.println("Ir a Proveedores");
-        // Implementar navegación a proveedores
-    }
-    
-    private void irAUsuarios() {
-        System.out.println("Ir a Usuarios");
-        // Implementar navegación a usuarios
-    }
-    
+
     private void irAConfiguracion() {
         System.out.println("Ir a Configuración");
         // AGREGAR CIERRE DE VENTANA
@@ -454,7 +422,36 @@ private void inicializarMenuLateral() {
     public void handleGestionInventario(ActionEvent event) {
         System.out.println("Gestión de Inventario clickeado");
         // Implementar navegación a gestión de inventario
-
+try {
+        // Cargar el archivo FXML del inventario
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/InventarioInterfaz.fxml"));
+        Scene scene = new Scene(loader.load());
+        
+        // Obtener el controlador del inventario
+        InventarioController inventarioController = loader.getController();
+        // Pasar la referencia del usuario actual al controlador de inventario si es necesario
+        inventarioController.setUsuarioActual(usuarioActual);
+        
+        // Crear nueva ventana
+        Stage stage = new Stage();
+        stage.setTitle("IDC - Gestión de Inventario");
+        stage.setScene(scene);
+        stage.setMaximized(true); // Para que se abra maximizada
+        stage.show();
+        
+        // Detener el timeline del reloj antes de cerrar
+        if (clockTimeline != null) {
+            clockTimeline.stop();
+        }
+        
+        // Cerrar la ventana actual (main-view)
+        Stage currentStage = (Stage) btnGestionInventario.getScene().getWindow();
+        currentStage.close();
+        
+    } catch (IOException e) {
+        System.err.println("Error al cargar la ventana de inventario: " + e.getMessage());
+        e.printStackTrace();
+    }
     }
     
     @FXML
