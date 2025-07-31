@@ -272,7 +272,7 @@ private void inicializarMenuLateral() {
     
     private void irAConfiguracion() {
         System.out.println("Ir a Configuración");
-        // En tu controlador o clase donde quieres abrir Configuracion
+        // AGREGAR CIERRE DE VENTANA
     try {
         Configuracion configuracion = new Configuracion();
         Stage nuevaVentana = new Stage();
@@ -454,8 +454,7 @@ private void inicializarMenuLateral() {
     public void handleGestionInventario(ActionEvent event) {
         System.out.println("Gestión de Inventario clickeado");
         // Implementar navegación a gestión de inventario
-        // Por ahora redirige a reportes como placeholder
-        handleReportes(event);
+
     }
     
     @FXML

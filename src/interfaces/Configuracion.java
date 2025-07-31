@@ -1,6 +1,6 @@
 package interfaces;
 
-import controller.sesion;
+import controller.SessionManager; // Cambiar import
 import dao.UsuarioDAO;
 import entidades.Usuarios;
 import javafx.application.Application;
@@ -30,11 +30,11 @@ public class Configuracion extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        UsuarioDAO dao = new UsuarioDAO();
-        usuario = dao.buscarUsuarioPorId(sesion.idUsuarioActivo);
+        // Cambiar esta línea para usar SessionManager
+        usuario = SessionManager.getInstance().getUsuarioActual();
 
         if (usuario == null) {
-            new Alert(Alert.AlertType.ERROR, "No se pudo cargar la información del usuario.").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "No se pudo cargar la información del usuario.\nNo hay sesión activa.").showAndWait();
             return;
         }
 
@@ -44,7 +44,8 @@ public class Configuracion extends Application {
 
         // Cargar imagen desde archivo .txt si existe, sino usar predeterminada
         String rutaImagen = "src/view/img/perfil.png";
-        File archivoRuta = new File("foto_usuario" + sesion.idUsuarioActivo + ".txt");
+        // Cambiar para usar el ID del usuario de SessionManager
+        File archivoRuta = new File("foto_usuario" + usuario.getId_usuario() + ".txt");
         if (archivoRuta.exists()) {
             try (Scanner scanner = new Scanner(archivoRuta)) {
                 if (scanner.hasNextLine()) {
@@ -122,8 +123,8 @@ public class Configuracion extends Application {
         if (imagenSeleccionada != null) {
             avatar.setImage(new Image(imagenSeleccionada.toURI().toString()));
  
-            // Guardar ruta en archivo .txt
-            try (PrintWriter writer = new PrintWriter("foto_usuario" + sesion.idUsuarioActivo + ".txt")) {
+            // Cambiar para usar el ID del usuario de SessionManager
+            try (PrintWriter writer = new PrintWriter("foto_usuario" + usuario.getId_usuario() + ".txt")) {
                 writer.println(imagenSeleccionada.getAbsolutePath());
             } catch (Exception ex) {
                 System.err.println("No se pudo guardar la ruta de la imagen: " + ex.getMessage());
@@ -167,6 +168,8 @@ public class Configuracion extends Application {
         usuario.setContraseña_usuario(contrasena);
  
         if (dao.actualizarUsuario(usuario)) {
+            // Actualizar también la información en SessionManager
+            SessionManager.getInstance().setUsuarioActual(usuario);
             new Alert(Alert.AlertType.INFORMATION, "Cambios guardados correctamente.").showAndWait();
         } else {
             new Alert(Alert.AlertType.ERROR, "Error al guardar cambios.").showAndWait();
