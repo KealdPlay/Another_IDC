@@ -115,6 +115,7 @@ public class Configuracion extends Application {
  
         Scene scene = new Scene(root, 800, 700);
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
         primaryStage.setTitle("Configuración de Usuario");
         primaryStage.show();
     }

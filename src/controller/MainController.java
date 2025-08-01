@@ -8,6 +8,7 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -79,7 +80,6 @@ public void initialize() {
     productoDAO = new ProductoDAO();
     inicializarReloj();
     cargarCentroNotificaciones();
-    inicializarMenuLateral();
     
     try {
         String imagePath = getClass().getResource("/images/menu_icon.png").toExternalForm();
@@ -101,6 +101,9 @@ public void initialize() {
     } catch (Exception e) {
         System.err.println("Error cargando imagen: " + e.getMessage());
     }
+    
+    // SOLO inicializar el menú básico SIN los bindings
+    inicializarMenuBasico();
 }
 
 // Método modificado para configurar el menú después de inicializar el usuario
@@ -111,30 +114,63 @@ public void inicializarConUsuario(Usuarios usuario) {
     // Reconfigurar el menú ahora que tenemos el usuario
     configurarMenuItems();
     
+    // AQUÍ configuramos los bindings cuando ya está todo listo
+    Platform.runLater(() -> {
+        configurarMenuResponsivo();
+    });
+    
     System.out.println("Usuario inicializado: " + usuario.getNombre_usuario() + ", ID: " + usuario.getId_usuario()); // Debug
 }
-    
-private void inicializarMenuLateral() {
-        if (overlayPane != null && sideMenu != null) {
-            // Configurar el overlay (fondo semi-transparente)
-            overlayPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
-            overlayPane.setVisible(false);
-            overlayPane.setOnMouseClicked(e -> ocultarMenu());
-            
-            // Configurar el menú lateral para que abarque toda la altura
-            sideMenu.setStyle(
-                "-fx-background-color: #2d2d2d; " +
-                "-fx-background-radius: 0; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 2, 0);"
-            );
-            
-            // Inicialmente oculto (fuera de la pantalla)
-            sideMenu.setTranslateX(-350);
-            
-            // Configurar los elementos del menú
+
+// Nuevo método que NO accede a Scene/Window
+private void inicializarMenuBasico() {
+    if (overlayPane != null && sideMenu != null) {
+        // Configurar el overlay (fondo semi-transparente)
+        overlayPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        overlayPane.setVisible(false);
+        overlayPane.setOnMouseClicked(e -> ocultarMenu());
+        
+        // Configurar el menú lateral básico
+        sideMenu.setStyle(
+            "-fx-background-color: #2d2d2d; " +
+            "-fx-background-radius: 0; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 2, 0);"
+        );
+        
+        // Inicialmente oculto (fuera de la pantalla)
+        sideMenu.setTranslateX(-350);
+        
+        // Configurar los elementos del menú (se configurarán después con el usuario)
+        if (usuarioActual != null) {
             configurarMenuItems();
         }
     }
+}
+
+// Método para configurar el menú responsivo (SOLO cuando esté listo)
+private void configurarMenuResponsivo() {
+    if (overlayPane != null && overlayPane.getScene() != null && overlayPane.getScene().getWindow() != null) {
+        Stage stage = (Stage) overlayPane.getScene().getWindow();
+        
+        // Hacer que el overlay cubra toda la ventana
+        overlayPane.prefWidthProperty().bind(stage.widthProperty());
+        overlayPane.prefHeightProperty().bind(stage.heightProperty());
+        
+        // Hacer que el menú se adapte a la altura de la ventana
+        if (sideMenu != null) {
+            sideMenu.prefHeightProperty().bind(stage.heightProperty());
+            sideMenu.setMaxHeight(Double.MAX_VALUE);
+        }
+        
+        System.out.println("Menú configurado para ser responsivo");
+    } else {
+        System.out.println("Scene o Window aún no están disponibles, reintentando...");
+        // Si aún no está listo, intentar de nuevo
+        Platform.runLater(() -> {
+            configurarMenuResponsivo();
+        });
+    }
+}
     
 private void configurarMenuItems() {
     if (sideMenu == null) return;
