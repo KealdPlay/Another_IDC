@@ -17,9 +17,17 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.io.IOException;
+import java.io.File;
+import java.util.Scanner;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -105,15 +113,15 @@ private void inicializarMenuLateral() {
             overlayPane.setVisible(false);
             overlayPane.setOnMouseClicked(e -> ocultarMenu());
             
-            // Configurar el menú lateral
+            // Configurar el menú lateral para que abarque toda la altura
             sideMenu.setStyle(
                 "-fx-background-color: #2d2d2d; " +
-                "-fx-background-radius: 0 10 10 0; " +
+                "-fx-background-radius: 0; " +
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 2, 0);"
             );
             
             // Inicialmente oculto (fuera de la pantalla)
-            sideMenu.setTranslateX(-280);
+            sideMenu.setTranslateX(-350);
             
             // Configurar los elementos del menú
             configurarMenuItems();
@@ -125,20 +133,44 @@ private void inicializarMenuLateral() {
         
         sideMenu.getChildren().clear();
         sideMenu.setSpacing(0);
-        sideMenu.setPrefWidth(280);
+        sideMenu.setPrefWidth(350);
+        // Asegurar que el menú abarque toda la altura
+        sideMenu.setPrefHeight(800);
+        sideMenu.setMaxHeight(Double.MAX_VALUE);
         
         // Header del menú con información del usuario
         VBox headerSection = new VBox();
-        headerSection.setStyle("-fx-background-color: #1e1e1e; -fx-padding: 20;");
-        headerSection.setSpacing(10);
+        headerSection.setStyle("-fx-background-color: #1e1e1e; -fx-padding: 30 20 30 20;");
+        headerSection.setSpacing(15);
+        headerSection.setAlignment(Pos.CENTER);
+        headerSection.setPrefHeight(200);
         
-        Label lblUsuario = new Label(usuarioActual != null ? usuarioActual.getNombre_usuario() : "");
-        lblUsuario.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
+        // Crear avatar circular con imagen del usuario
+        javafx.scene.layout.StackPane avatarContainer = crearAvatarUsuario();
         
-        Label lblRol = new Label("Administrador"); // Puedes obtener esto del usuario
-        lblRol.setStyle("-fx-text-fill: #888888; -fx-font-size: 12px;");
+        // Obtener información del usuario y rol
+        String nombreUsuario = usuarioActual != null ? usuarioActual.getNombre_usuario() : "Usuario";
+        String nombreRol = "Admin"; // Valor por defecto
         
-        headerSection.getChildren().addAll(lblUsuario, lblRol);
+        // Determinar el rol basado en el id_rol
+        if (usuarioActual != null) {
+            int idRol = usuarioActual.getId_rol();
+            if (idRol == 1) {
+                nombreRol = "Owner";
+            } else if (idRol == 2) {
+                nombreRol = "Admin";
+            } else {
+                nombreRol = "Usuario"; // Para cualquier otro valor
+            }
+        }
+        
+        Label lblUsuario = new Label(nombreUsuario);
+        lblUsuario.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;");
+        
+        Label lblRol = new Label(nombreRol);
+        lblRol.setStyle("-fx-text-fill: #888888; -fx-font-size: 14px;");
+        
+        headerSection.getChildren().addAll(avatarContainer, lblUsuario, lblRol);
         
         // Separador
         Pane separator = new Pane();
@@ -148,44 +180,72 @@ private void inicializarMenuLateral() {
         
         // Opciones del menú
         VBox menuOptions = new VBox();
-        menuOptions.setSpacing(5);
+        menuOptions.setSpacing(0);
         menuOptions.setStyle("-fx-padding: 20 0;");
         
-        // Crear botones del menú
-        Button btnConfiguracion = crearBotonMenu("⚙️ Configuración", this::irAConfiguracion);
+        // Crear botones del menú con iconos
+        Button btnConfiguracion = crearBotonMenu("⚙️", "Configuración", this::irAConfiguracion);
         
-        menuOptions.getChildren().addAll(
-                btnConfiguracion
-        );
+        menuOptions.getChildren().addAll(btnConfiguracion);
+        
+        // Spacer para empujar el footer hacia abajo
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
         
         // Sección inferior con botón de cerrar sesión
         VBox footerSection = new VBox();
         footerSection.setStyle("-fx-padding: 20; -fx-background-color: #1e1e1e;");
+        footerSection.setPrefHeight(80);
         
-        Button btnCerrarSesion = crearBotonMenu("🚪 Cerrar Sesión", this::cerrarSesion);
-        btnCerrarSesion.setStyle(btnCerrarSesion.getStyle() + "-fx-text-fill: #ff6b6b;");
+        Button btnCerrarSesion = crearBotonMenu("🚪", "Cerrar Sesión", this::cerrarSesion);
+        btnCerrarSesion.setStyle(
+            "-fx-background-color: transparent; " +
+            "-fx-text-fill: #ff6b6b; " +
+            "-fx-font-size: 16px; " +
+            "-fx-alignment: center-left; " +
+            "-fx-padding: 15 20; " +
+            "-fx-pref-width: 310; " +
+            "-fx-cursor: hand;"
+        );
         
         footerSection.getChildren().add(btnCerrarSesion);
-        
-        // Spacer para empujar el footer hacia abajo
-        Pane spacer = new Pane();
-        VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
         
         sideMenu.getChildren().addAll(
             headerSection, separator, menuOptions, spacer, footerSection
         );
     }
     
-    private Button crearBotonMenu(String texto, Runnable accion) {
-        Button btn = new Button(texto);
+    private Button crearBotonMenu(String icono, String texto, Runnable accion) {
+        Button btn = new Button();
+        
+        // Crear HBox para el contenido del botón
+        HBox contenido = new HBox();
+        contenido.setSpacing(15);
+        contenido.setAlignment(Pos.CENTER_LEFT);
+        
+        // Label para el icono
+        Label lblIcono = new Label(icono);
+        lblIcono.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
+        lblIcono.setPrefWidth(30);
+        
+        // Label para el texto
+        Label lblTexto = new Label(texto);
+        lblTexto.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+        
+        contenido.getChildren().addAll(lblIcono, lblTexto);
+        
+        btn.setGraphic(contenido);
         btn.setStyle(
             "-fx-background-color: transparent; " +
             "-fx-text-fill: white; " +
-            "-fx-font-size: 14px; " +
+            "-fx-font-size: 16px; " +
             "-fx-alignment: center-left; " +
             "-fx-padding: 15 20; " +
-            "-fx-pref-width: 240; " +
-            "-fx-cursor: hand;"
+            "-fx-pref-width: 310; " +
+            "-fx-cursor: hand; " +
+            "-fx-border-width: 0; " +
+            "-fx-focus-color: transparent; " +
+            "-fx-faint-focus-color: transparent;"
         );
         
         // Efectos hover
@@ -204,6 +264,96 @@ private void inicializarMenuLateral() {
         return btn;
     }
     
+    private javafx.scene.layout.StackPane crearAvatarUsuario() {
+        // Ruta por defecto
+        String rutaImagen = "src/view/img/perfil.png";
+        
+        // Intentar leer la ruta personalizada del archivo de texto
+        if (usuarioActual != null) {
+            File archivoRuta = new File("foto_usuario" + usuarioActual.getId_usuario() + ".txt");
+            if (archivoRuta.exists()) {
+                try (Scanner scanner = new Scanner(archivoRuta)) {
+                    if (scanner.hasNextLine()) {
+                        String rutaGuardada = scanner.nextLine();
+                        if (new File(rutaGuardada).exists()) {
+                            rutaImagen = rutaGuardada;
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error al leer ruta de imagen: " + e.getMessage());
+                }
+            }
+        }
+        
+        // Crear StackPane contenedor
+        javafx.scene.layout.StackPane avatarContainer = new javafx.scene.layout.StackPane();
+        avatarContainer.setPrefSize(80, 80);
+        avatarContainer.setMaxSize(80, 80);
+        
+        // Crear ImageView
+        ImageView avatarImageView;
+        boolean imagenCargada = false;
+        
+        try {
+            Image imagen;
+            if (rutaImagen.startsWith("src/")) {
+                // Para imágenes de recursos internos
+                imagen = new Image(getClass().getResourceAsStream("/" + rutaImagen.substring(4)));
+            } else {
+                // Para imágenes externas seleccionadas por el usuario
+                imagen = new Image("file:" + rutaImagen);
+            }
+            
+            if (!imagen.isError()) {
+                avatarImageView = new ImageView(imagen);
+                avatarImageView.setFitWidth(80);
+                avatarImageView.setFitHeight(80);
+                avatarImageView.setPreserveRatio(true);
+                
+                // Aplicar máscara circular
+                Circle clip = new Circle(40, 40, 40);
+                avatarImageView.setClip(clip);
+                
+                avatarContainer.getChildren().add(avatarImageView);
+                imagenCargada = true;
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar imagen de perfil: " + e.getMessage());
+        }
+        
+        // Si no se pudo cargar la imagen, crear avatar por defecto
+        if (!imagenCargada) {
+            Circle circuloDefecto = new Circle(40);
+            circuloDefecto.setFill(Color.web("#4FD1C7"));
+            avatarContainer.getChildren().add(circuloDefecto);
+        }
+        
+        // Agregar borde blanco
+        Circle borde = new Circle(40);
+        borde.setFill(Color.TRANSPARENT);
+        borde.setStroke(Color.WHITE);
+        borde.setStrokeWidth(3);
+        avatarContainer.getChildren().add(borde);
+        
+        return avatarContainer;
+    }
+    
+    private ImageView crearAvatarPorDefecto() {
+        // Crear un círculo de color como avatar por defecto
+        Circle circuloDefecto = new Circle(40);
+        circuloDefecto.setFill(Color.web("#4FD1C7"));
+        circuloDefecto.setStroke(Color.WHITE);
+        circuloDefecto.setStrokeWidth(3);
+        
+        // Convertir el círculo a imagen (método simplificado)
+        // Por simplicidad, vamos a crear un ImageView vacío y manejar esto diferente
+        ImageView avatarDefecto = new ImageView();
+        avatarDefecto.setFitWidth(80);
+        avatarDefecto.setFitHeight(80);
+        
+        return avatarDefecto;
+    }
+    
     @FXML
     public void toggleMenu() {
         if (menuVisible) {
@@ -218,7 +368,7 @@ private void inicializarMenuLateral() {
             overlayPane.setVisible(true);
             
             TranslateTransition slideIn = new TranslateTransition(Duration.millis(300), sideMenu);
-            slideIn.setFromX(-280);
+            slideIn.setFromX(-350);
             slideIn.setToX(0);
             slideIn.play();
             
@@ -230,7 +380,7 @@ private void inicializarMenuLateral() {
         if (overlayPane != null && sideMenu != null) {
             TranslateTransition slideOut = new TranslateTransition(Duration.millis(300), sideMenu);
             slideOut.setFromX(0);
-            slideOut.setToX(-280);
+            slideOut.setToX(-350);
             slideOut.setOnFinished(e -> overlayPane.setVisible(false));
             slideOut.play();
             
@@ -240,16 +390,14 @@ private void inicializarMenuLateral() {
 
     private void irAConfiguracion() {
         System.out.println("Ir a Configuración");
-        // AGREGAR CIERRE DE VENTANA
-    try {
-        Configuracion configuracion = new Configuracion();
-        Stage nuevaVentana = new Stage();
-        configuracion.start(nuevaVentana);
-    } catch (Exception e) {
-        e.printStackTrace();
+        try {
+            Configuracion configuracion = new Configuracion();
+            Stage nuevaVentana = new Stage();
+            configuracion.start(nuevaVentana);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
-
     
     private void cerrarSesion() {
         System.out.println("Cerrando sesión...");
@@ -421,63 +569,51 @@ private void inicializarMenuLateral() {
     @FXML
     public void handleGestionInventario(ActionEvent event) {
         System.out.println("Gestión de Inventario clickeado");
-        // Implementar navegación a gestión de inventario
-try {
-        // Cargar el archivo FXML del inventario
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/InventarioInterfaz.fxml"));
-        Scene scene = new Scene(loader.load());
-        
-        // Obtener el controlador del inventario
-        InventarioController inventarioController = loader.getController();
-        // Pasar la referencia del usuario actual al controlador de inventario si es necesario
-        inventarioController.setUsuarioActual(usuarioActual);
-        
-        // Crear nueva ventana
-        Stage stage = new Stage();
-        stage.setTitle("IDC - Gestión de Inventario");
-        stage.setScene(scene);
-        stage.setMaximized(true); // Para que se abra maximizada
-        stage.show();
-        
-        // Detener el timeline del reloj antes de cerrar
-        if (clockTimeline != null) {
-            clockTimeline.stop();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/InventarioInterfaz.fxml"));
+            Scene scene = new Scene(loader.load());
+            
+            InventarioController inventarioController = loader.getController();
+            inventarioController.setUsuarioActual(usuarioActual);
+            
+            Stage stage = new Stage();
+            stage.setTitle("IDC - Gestión de Inventario");
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+            
+            if (clockTimeline != null) {
+                clockTimeline.stop();
+            }
+            
+            Stage currentStage = (Stage) btnGestionInventario.getScene().getWindow();
+            currentStage.close();
+            
+        } catch (IOException e) {
+            System.err.println("Error al cargar la ventana de inventario: " + e.getMessage());
+            e.printStackTrace();
         }
-        
-        // Cerrar la ventana actual (main-view)
-        Stage currentStage = (Stage) btnGestionInventario.getScene().getWindow();
-        currentStage.close();
-        
-    } catch (IOException e) {
-        System.err.println("Error al cargar la ventana de inventario: " + e.getMessage());
-        e.printStackTrace();
-    }
     }
     
     @FXML
     public void handleReportes(ActionEvent event) {
         try {
-            // Cargar el archivo FXML con la ruta correcta
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/ReportesInterfaces-view.fxml"));
             Scene scene = new Scene(loader.load());
             
-            // Obtener el controlador de ReportesInterfaces
             ReportesInterfaces reportesController = loader.getController();
             reportesController.inicializarConUsuario(usuarioActual);
             
-            // Crear nueva ventana
             Stage stage = new Stage();
             stage.setTitle("IDC - Reportes de Inventario");
             stage.setScene(scene);
-            stage.setMaximized(true); // Para que se abra maximizada
+            stage.setMaximized(true);
             stage.show();
             
-            // Detener el timeline del reloj antes de cerrar
             if (clockTimeline != null) {
                 clockTimeline.stop();
             }
             
-            // Cerrar la ventana actual (main-view)
             Stage currentStage = (Stage) btnReportes.getScene().getWindow();
             currentStage.close();
             
@@ -489,7 +625,6 @@ try {
     
     public void volverALogin() {
         try {
-            // Detener el timeline del reloj
             if (clockTimeline != null) {
                 clockTimeline.stop();
             }
@@ -511,7 +646,6 @@ try {
         }
     }
     
-    // Método para limpiar recursos cuando se cierre la ventana
     public void cleanup() {
         if (clockTimeline != null) {
             clockTimeline.stop();

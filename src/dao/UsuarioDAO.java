@@ -12,6 +12,8 @@ public class UsuarioDAO {
 
     
     private final Connection connection;
+
+
     
     public UsuarioDAO() {
         this.connection = Conexion.getInstance().getConnection();
@@ -97,6 +99,44 @@ public class UsuarioDAO {
             return false;
         }
     }
+    
+    public void actualizarGmail(int idUsuario, String nuevoGmail) {
+    String sql = "UPDATE usuarios SET gmail_usuario = ? WHERE id_usuario = ?";
+    
+    try (Connection conn = Conexion.getInstance().connection;
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        stmt.setString(1, nuevoGmail);
+        stmt.setInt(2, idUsuario);
+        stmt.executeUpdate();
+        
+        System.out.println("Gmail actualizado correctamente.");
+        
+    } catch (SQLException ex) {
+        System.err.println("Error al actualizar el Gmail:");
+        ex.printStackTrace();
+    }
+}
+
+    
+    public void actualizarContrasena(int idUsuario, String nuevaContrasena) {
+    String sql = "UPDATE usuarios SET contraseña_usuario = ? WHERE id_usuario = ?";
+    
+    try (Connection conn = Conexion.getInstance().connection;
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        stmt.setString(1, nuevaContrasena);
+        stmt.setInt(2, idUsuario);
+        stmt.executeUpdate();
+        
+        System.out.println("Contraseña actualizada correctamente.");
+        
+    } catch (SQLException ex) {
+        System.err.println("Error al actualizar la contraseña:");
+        ex.printStackTrace();
+    }
+}
+
     
     public boolean existeCorreoUsuario(String correoUsuario) {
         String sql = "SELECT COUNT(*) FROM usuarios WHERE correo_usuario = ?";
