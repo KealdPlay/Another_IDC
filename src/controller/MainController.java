@@ -73,18 +73,15 @@ public class MainController {
     private Timeline clockTimeline;
     private boolean menuVisible = false;
     
-    public void inicializarConUsuario(Usuarios usuario) {
-        this.usuarioActual = usuario;
-        cargarInformacionUsuario();
-    }
     
-    @FXML
-    public void initialize() {
-        productoDAO = new ProductoDAO();
-        inicializarReloj();
-        cargarCentroNotificaciones();
-        inicializarMenuLateral();
-        try {
+@FXML
+public void initialize() {
+    productoDAO = new ProductoDAO();
+    inicializarReloj();
+    cargarCentroNotificaciones();
+    inicializarMenuLateral();
+    
+    try {
         String imagePath = getClass().getResource("/images/menu_icon.png").toExternalForm();
         
         btnMenu.setStyle(
@@ -104,7 +101,18 @@ public class MainController {
     } catch (Exception e) {
         System.err.println("Error cargando imagen: " + e.getMessage());
     }
-    }
+}
+
+// Método modificado para configurar el menú después de inicializar el usuario
+public void inicializarConUsuario(Usuarios usuario) {
+    this.usuarioActual = usuario;
+    cargarInformacionUsuario();
+    
+    // Reconfigurar el menú ahora que tenemos el usuario
+    configurarMenuItems();
+    
+    System.out.println("Usuario inicializado: " + usuario.getNombre_usuario() + ", ID: " + usuario.getId_usuario()); // Debug
+}
     
 private void inicializarMenuLateral() {
         if (overlayPane != null && sideMenu != null) {
@@ -128,92 +136,120 @@ private void inicializarMenuLateral() {
         }
     }
     
-    private void configurarMenuItems() {
-        if (sideMenu == null) return;
-        
-        sideMenu.getChildren().clear();
-        sideMenu.setSpacing(0);
-        sideMenu.setPrefWidth(350);
-        // Asegurar que el menú abarque toda la altura
-        sideMenu.setPrefHeight(800);
-        sideMenu.setMaxHeight(Double.MAX_VALUE);
-        
-        // Header del menú con información del usuario
-        VBox headerSection = new VBox();
-        headerSection.setStyle("-fx-background-color: #1e1e1e; -fx-padding: 30 20 30 20;");
-        headerSection.setSpacing(15);
-        headerSection.setAlignment(Pos.CENTER);
-        headerSection.setPrefHeight(200);
-        
-        // Crear avatar circular con imagen del usuario
-        javafx.scene.layout.StackPane avatarContainer = crearAvatarUsuario();
-        
-        // Obtener información del usuario y rol
-        String nombreUsuario = usuarioActual != null ? usuarioActual.getNombre_usuario() : "Usuario";
-        String nombreRol = "Admin"; // Valor por defecto
+private void configurarMenuItems() {
+    if (sideMenu == null) return;
+    
+    sideMenu.getChildren().clear();
+    sideMenu.setSpacing(0);
+    sideMenu.setPrefWidth(350);
+    sideMenu.setMaxHeight(Double.MAX_VALUE);
+    
+    // Header del menú con información del usuario
+    VBox headerSection = new VBox();
+    headerSection.setStyle("-fx-background-color: #1e1e1e; -fx-padding: 30 20 30 20;");
+    headerSection.setSpacing(15);
+    headerSection.setAlignment(Pos.CENTER);
+    headerSection.setPrefHeight(200);
+    
+    // Crear avatar circular con imagen del usuario
+    javafx.scene.layout.StackPane avatarContainer = crearAvatarUsuario();
+    
+    // Obtener información del usuario - CORREGIDO
+    String nombreUsuario = "Usuario"; // Valor por defecto
+    String nombreRol = "Usuario"; // Valor por defecto
+    
+    // Verificar si usuarioActual no es nulo
+    if (usuarioActual != null) {
+        nombreUsuario = usuarioActual.getNombre_usuario();
         
         // Determinar el rol basado en el id_rol
-        if (usuarioActual != null) {
-            int idRol = usuarioActual.getId_rol();
-            if (idRol == 1) {
+        int idRol = usuarioActual.getId_rol();
+        switch (idRol) {
+            case 1:
                 nombreRol = "Owner";
-            } else if (idRol == 2) {
+                break;
+            case 2:
                 nombreRol = "Admin";
-            } else {
-                nombreRol = "Usuario"; // Para cualquier otro valor
-            }
+                break;
+            default:
+                nombreRol = "Usuario";
+                break;
         }
         
-        Label lblUsuario = new Label(nombreUsuario);
-        lblUsuario.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;");
+        System.out.println("Usuario: " + nombreUsuario + ", Rol ID: " + idRol + ", Rol: " + nombreRol); // Debug
+    } else {
+        System.out.println("usuarioActual es nulo en configurarMenuItems()"); // Debug
         
-        Label lblRol = new Label(nombreRol);
-        lblRol.setStyle("-fx-text-fill: #888888; -fx-font-size: 14px;");
-        
-        headerSection.getChildren().addAll(avatarContainer, lblUsuario, lblRol);
-        
-        // Separador
-        Pane separator = new Pane();
-        separator.setStyle("-fx-background-color: #404040;");
-        separator.setPrefHeight(1);
-        separator.setMaxHeight(1);
-        
-        // Opciones del menú
-        VBox menuOptions = new VBox();
-        menuOptions.setSpacing(0);
-        menuOptions.setStyle("-fx-padding: 20 0;");
-        
-        // Crear botones del menú con iconos
-        Button btnConfiguracion = crearBotonMenu("⚙️", "Configuración", this::irAConfiguracion);
-        
-        menuOptions.getChildren().addAll(btnConfiguracion);
-        
-        // Spacer para empujar el footer hacia abajo
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
-        
-        // Sección inferior con botón de cerrar sesión
-        VBox footerSection = new VBox();
-        footerSection.setStyle("-fx-padding: 20; -fx-background-color: #1e1e1e;");
-        footerSection.setPrefHeight(80);
-        
-        Button btnCerrarSesion = crearBotonMenu("🚪", "Cerrar Sesión", this::cerrarSesion);
-        btnCerrarSesion.setStyle(
-            "-fx-background-color: transparent; " +
-            "-fx-text-fill: #ff6b6b; " +
-            "-fx-font-size: 16px; " +
-            "-fx-alignment: center-left; " +
-            "-fx-padding: 15 20; " +
-            "-fx-pref-width: 310; " +
-            "-fx-cursor: hand;"
-        );
-        
-        footerSection.getChildren().add(btnCerrarSesion);
-        
-        sideMenu.getChildren().addAll(
-            headerSection, separator, menuOptions, spacer, footerSection
-        );
+        // Intentar obtener el usuario de SessionManager
+        usuarioActual = SessionManager.getInstance().getUsuarioActual();
+        if (usuarioActual != null) {
+            nombreUsuario = usuarioActual.getNombre_usuario();
+            int idRol = usuarioActual.getId_rol();
+            switch (idRol) {
+                case 1:
+                    nombreRol = "Owner";
+                    break;
+                case 2:
+                    nombreRol = "Admin";
+                    break;
+                default:
+                    nombreRol = "Usuario";
+                    break;
+            }
+            System.out.println("Usuario obtenido de SessionManager: " + nombreUsuario + ", Rol: " + nombreRol); // Debug
+        }
     }
+    
+    Label lblUsuario = new Label(nombreUsuario);
+    lblUsuario.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;");
+    
+    Label lblRol = new Label(nombreRol);
+    lblRol.setStyle("-fx-text-fill: #888888; -fx-font-size: 14px;");
+    
+    headerSection.getChildren().addAll(avatarContainer, lblUsuario, lblRol);
+    
+    // Separador
+    Pane separator = new Pane();
+    separator.setStyle("-fx-background-color: #404040;");
+    separator.setPrefHeight(1);
+    separator.setMaxHeight(1);
+    
+    // Opciones del menú
+    VBox menuOptions = new VBox();
+    menuOptions.setSpacing(0);
+    menuOptions.setStyle("-fx-padding: 20 0;");
+    
+    // Crear botones del menú con iconos
+    Button btnConfiguracion = crearBotonMenu("⚙️", "Configuración", this::irAConfiguracion);
+    
+    menuOptions.getChildren().addAll(btnConfiguracion);
+    
+    // Spacer para empujar el footer hacia abajo
+    Region spacer = new Region();
+    VBox.setVgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+    
+    // Sección inferior con botón de cerrar sesión
+    VBox footerSection = new VBox();
+    footerSection.setStyle("-fx-padding: 20; -fx-background-color: #1e1e1e;");
+    footerSection.setPrefHeight(80);
+    
+    Button btnCerrarSesion = crearBotonMenu("🚪", "Cerrar Sesión", this::cerrarSesion);
+    btnCerrarSesion.setStyle(
+        "-fx-background-color: transparent; " +
+        "-fx-text-fill: #ff6b6b; " +
+        "-fx-font-size: 16px; " +
+        "-fx-alignment: center-left; " +
+        "-fx-padding: 15 20; " +
+        "-fx-pref-width: 310; " +
+        "-fx-cursor: hand;"
+    );
+    
+    footerSection.getChildren().add(btnCerrarSesion);
+    
+    sideMenu.getChildren().addAll(
+        headerSection, separator, menuOptions, spacer, footerSection
+    );
+}
     
     private Button crearBotonMenu(String icono, String texto, Runnable accion) {
         Button btn = new Button();
@@ -264,79 +300,109 @@ private void inicializarMenuLateral() {
         return btn;
     }
     
-    private javafx.scene.layout.StackPane crearAvatarUsuario() {
-        // Ruta por defecto
-        String rutaImagen = "src/view/img/perfil.png";
-        
-        // Intentar leer la ruta personalizada del archivo de texto
-        if (usuarioActual != null) {
-            File archivoRuta = new File("foto_usuario" + usuarioActual.getId_usuario() + ".txt");
-            if (archivoRuta.exists()) {
-                try (Scanner scanner = new Scanner(archivoRuta)) {
-                    if (scanner.hasNextLine()) {
-                        String rutaGuardada = scanner.nextLine();
-                        if (new File(rutaGuardada).exists()) {
-                            rutaImagen = rutaGuardada;
-                        }
+private javafx.scene.layout.StackPane crearAvatarUsuario() {
+    // Ruta por defecto
+    String rutaImagen = "src/view/img/perfil.png";
+    
+    // Intentar leer la ruta personalizada del archivo de texto
+    if (usuarioActual != null) {
+        File archivoRuta = new File("foto_usuario" + usuarioActual.getId_usuario() + ".txt");
+        if (archivoRuta.exists()) {
+            try (Scanner scanner = new Scanner(archivoRuta)) {
+                if (scanner.hasNextLine()) {
+                    String rutaGuardada = scanner.nextLine().trim(); // Agregar trim()
+                    if (new File(rutaGuardada).exists()) {
+                        rutaImagen = rutaGuardada;
+                        System.out.println("Cargando imagen personalizada: " + rutaImagen); // Debug
+                    } else {
+                        System.out.println("Archivo de imagen no existe: " + rutaGuardada); // Debug
                     }
-                } catch (Exception e) {
-                    System.err.println("Error al leer ruta de imagen: " + e.getMessage());
                 }
+            } catch (Exception e) {
+                System.err.println("Error al leer ruta de imagen: " + e.getMessage());
             }
+        } else {
+            System.out.println("Archivo de ruta no existe: foto_usuario" + usuarioActual.getId_usuario() + ".txt"); // Debug
         }
-        
-        // Crear StackPane contenedor
-        javafx.scene.layout.StackPane avatarContainer = new javafx.scene.layout.StackPane();
-        avatarContainer.setPrefSize(80, 80);
-        avatarContainer.setMaxSize(80, 80);
-        
-        // Crear ImageView
-        ImageView avatarImageView;
-        boolean imagenCargada = false;
-        
-        try {
-            Image imagen;
-            if (rutaImagen.startsWith("src/")) {
-                // Para imágenes de recursos internos
-                imagen = new Image(getClass().getResourceAsStream("/" + rutaImagen.substring(4)));
-            } else {
-                // Para imágenes externas seleccionadas por el usuario
-                imagen = new Image("file:" + rutaImagen);
-            }
-            
-            if (!imagen.isError()) {
-                avatarImageView = new ImageView(imagen);
-                avatarImageView.setFitWidth(80);
-                avatarImageView.setFitHeight(80);
-                avatarImageView.setPreserveRatio(true);
-                
-                // Aplicar máscara circular
-                Circle clip = new Circle(40, 40, 40);
-                avatarImageView.setClip(clip);
-                
-                avatarContainer.getChildren().add(avatarImageView);
-                imagenCargada = true;
-            }
-        } catch (Exception e) {
-            System.err.println("Error al cargar imagen de perfil: " + e.getMessage());
-        }
-        
-        // Si no se pudo cargar la imagen, crear avatar por defecto
-        if (!imagenCargada) {
-            Circle circuloDefecto = new Circle(40);
-            circuloDefecto.setFill(Color.web("#4FD1C7"));
-            avatarContainer.getChildren().add(circuloDefecto);
-        }
-        
-        // Agregar borde blanco
-        Circle borde = new Circle(40);
-        borde.setFill(Color.TRANSPARENT);
-        borde.setStroke(Color.WHITE);
-        borde.setStrokeWidth(3);
-        avatarContainer.getChildren().add(borde);
-        
-        return avatarContainer;
     }
+    
+    // Crear StackPane contenedor
+    javafx.scene.layout.StackPane avatarContainer = new javafx.scene.layout.StackPane();
+    avatarContainer.setPrefSize(80, 80);
+    avatarContainer.setMaxSize(80, 80);
+    
+    // Crear ImageView
+    ImageView avatarImageView = null;
+    boolean imagenCargada = false;
+    
+    try {
+        Image imagen = null;
+        
+        // Manejar diferentes tipos de rutas
+        if (rutaImagen.startsWith("src/")) {
+            // Para imágenes de recursos internos
+            String resourcePath = "/" + rutaImagen.substring(4);
+            System.out.println("Intentando cargar recurso: " + resourcePath); // Debug
+            imagen = new Image(getClass().getResourceAsStream(resourcePath));
+        } else {
+            // Para imágenes externas seleccionadas por el usuario
+            File archivoImagen = new File(rutaImagen);
+            if (archivoImagen.exists()) {
+                System.out.println("Cargando imagen externa: " + rutaImagen); // Debug
+                imagen = new Image(archivoImagen.toURI().toString());
+            } else {
+                System.out.println("Archivo de imagen externa no existe: " + rutaImagen); // Debug
+                // Intentar cargar imagen por defecto
+                imagen = new Image(getClass().getResourceAsStream("/view/img/perfil.png"));
+            }
+        }
+        
+        if (imagen != null && !imagen.isError()) {
+            avatarImageView = new ImageView(imagen);
+            avatarImageView.setFitWidth(80);
+            avatarImageView.setFitHeight(80);
+            avatarImageView.setPreserveRatio(false); // Cambiar a false para llenar el círculo
+            avatarImageView.setSmooth(true); // Mejorar calidad
+            
+            // Aplicar máscara circular
+            Circle clip = new Circle(40, 40, 40);
+            avatarImageView.setClip(clip);
+            
+            avatarContainer.getChildren().add(avatarImageView);
+            imagenCargada = true;
+            System.out.println("Imagen cargada exitosamente"); // Debug
+        } else {
+            System.out.println("Error en la imagen o imagen nula"); // Debug
+        }
+    } catch (Exception e) {
+        System.err.println("Error al cargar imagen de perfil: " + e.getMessage());
+        e.printStackTrace(); // Mostrar stack trace completo
+    }
+    
+    // Si no se pudo cargar la imagen, crear avatar por defecto
+    if (!imagenCargada) {
+        System.out.println("Creando avatar por defecto"); // Debug
+        Circle circuloDefecto = new Circle(40);
+        circuloDefecto.setFill(Color.web("#4FD1C7"));
+        avatarContainer.getChildren().add(circuloDefecto);
+        
+        // Agregar inicial del nombre si está disponible
+        if (usuarioActual != null && !usuarioActual.getNombre_usuario().isEmpty()) {
+            Label inicial = new Label(String.valueOf(usuarioActual.getNombre_usuario().charAt(0)).toUpperCase());
+            inicial.setStyle("-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;");
+            avatarContainer.getChildren().add(inicial);
+        }
+    }
+    
+    // Agregar borde blanco
+    Circle borde = new Circle(40);
+    borde.setFill(Color.TRANSPARENT);
+    borde.setStroke(Color.WHITE);
+    borde.setStrokeWidth(3);
+    avatarContainer.getChildren().add(borde);
+    
+    return avatarContainer;
+}
     
     private ImageView crearAvatarPorDefecto() {
         // Crear un círculo de color como avatar por defecto
