@@ -14,6 +14,10 @@ public class CategoriaDAO {
     public CategoriaDAO(Connection connection) {
         this.connection = connection;
     }
+
+    public CategoriaDAO() {
+    }
+    
     
     public boolean crear(Categoria categoria) {
         String sql = "INSERT INTO categorias (nombre_categoria, descripcion) VALUES (?, ?)";
@@ -41,6 +45,21 @@ public class CategoriaDAO {
         return null;
     }
     
+    public List<String> obtenerNombresCategorias() throws SQLException {
+        String query = "SELECT nombre_categoria FROM categorias";
+        List<String> categorias = new ArrayList<>();
+        
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                categorias.add(rs.getString("nombre_categoria"));
+            }
+        }
+        
+        return categorias;
+    }
+    
     public List<Categoria> obtenerTodos() {
         List<Categoria> categorias = new ArrayList<>();
         String sql = "SELECT * FROM categorias";
@@ -53,6 +72,20 @@ public class CategoriaDAO {
             e.printStackTrace();
         }
         return categorias;
+    }
+    
+    public int obtenerIdCategoria(String nombreCategoria) throws SQLException {
+        String query = "SELECT id_categoria FROM categorias WHERE nombre_categoria = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, nombreCategoria);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("id_categoria");
+            }
+            throw new SQLException("No se encontró la categoría: " + nombreCategoria);
+        }
     }
     
     public boolean actualizar(Categoria categoria) {

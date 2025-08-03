@@ -167,6 +167,35 @@ public class ProductoDAO {
         return false;
     }
     
+    public boolean insertarProducto(String nombreProducto, String descripcionProducto,
+                                  double precioProducto, int stockProducto,
+                                  String colorProducto, String medidasProducto,
+                                  int idCategoria, int idProveedor) {
+        
+        String sql = "INSERT INTO productos (nombre_producto, descripcion_producto, " +
+                    "precio_producto, stock_producto, color_producto, medidas_producto, " +
+                    "id_categoria, id_proveedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, nombreProducto);
+            stmt.setString(2, descripcionProducto);
+            stmt.setDouble(3, precioProducto);  // Cambiado a setDouble
+            stmt.setInt(4, stockProducto);
+            stmt.setString(5, colorProducto);
+            stmt.setString(6, medidasProducto);
+            stmt.setInt(7, idCategoria);
+            stmt.setInt(8, idProveedor);
+            
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Error al insertar producto: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     private Producto mapearResultSet(ResultSet rs) throws SQLException {
         return new Producto(
             rs.getInt("id_producto"),
