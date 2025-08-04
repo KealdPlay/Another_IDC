@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.stage.Modality;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -328,13 +329,39 @@ private void handleBackButton() {
     }
 }
     
-    @FXML
-    private void handleAddProduct() {
-        // Implementar lógica para agregar nuevo producto
-        System.out.println("Abriendo formulario para agregar producto...");
-        // abrir una nueva ventana o cambiar de escena
-        // para mostrar el formulario de agregar producto
+@FXML
+private void handleAddProduct() {
+    try {
+        // Cargar la interfaz de agregar producto
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/AgregarProductoInterfaz.fxml"));
+        Scene scene = new Scene(loader.load());
+        
+        // Obtener el controlador de agregar producto
+        AgregarProductoController agregarController = loader.getController();
+        
+        // Crear nueva ventana
+        Stage stage = new Stage();
+        stage.setTitle("Agregar Nuevo Producto");
+        stage.setScene(scene);
+        stage.setResizable(false); // Opcional: hacer la ventana no redimensionable
+        
+        // Hacer la ventana modal (opcional)
+        stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        
+        // Centrar la ventana en la pantalla
+        stage.centerOnScreen();
+        
+        // Mostrar la ventana y esperar a que se cierre
+        stage.showAndWait();
+        
+        // Después de cerrar la ventana de agregar producto, refrescar el inventario
+        refreshProducts();
+        
+    } catch (IOException e) {
+        System.err.println("Error al abrir la ventana de agregar producto: " + e.getMessage());
+        e.printStackTrace();
     }
+}
     
     private void handleProductDetails(Producto producto) {
         // Implementar lógica para mostrar detalles del producto

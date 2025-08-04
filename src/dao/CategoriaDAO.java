@@ -15,8 +15,9 @@ public class CategoriaDAO {
         this.connection = connection;
     }
 
-    public CategoriaDAO() {
-    }
+public CategoriaDAO() {
+    this.connection = Conexion.getInstance().getConnection(); // ← AGREGAR esta línea
+}
     
     
     public boolean crear(Categoria categoria) {

@@ -1,8 +1,13 @@
 package controller;
 
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.ResultSet;
 import dao.CategoriaDAO;
 import dao.ProveedorDAO;
 import dao.ProductoDAO;
+import database.Conexion;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -48,10 +53,23 @@ public class AgregarProductoController implements Initializable {
     private ProveedorDAO proveedorDAO;
     private ProductoDAO productoDAO;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Generar ID automático
-        generarIdProducto();
+// MEJORA en AgregarProductoController.java - método initialize con mejor manejo de errores
+@Override
+public void initialize(URL url, ResourceBundle resourceBundle) {
+    // Generar ID automático
+    generarIdProducto();
+    
+    // Configurar validaciones (esto siempre debe ejecutarse)
+    configurarValidaciones();
+    
+    try {
+        // Verificar conexión antes de inicializar DAOs
+        if (!verificarConexion()) {
+            mostrarError("Error de Conexión", 
+                "No se pudo establecer conexión con la base de datos. " +
+                "Los ComboBox estarán vacíos.");
+            return;
+        }
         
         // Inicializar DAOs
         inicializarDAOs();
@@ -60,9 +78,25 @@ public class AgregarProductoController implements Initializable {
         cargarCategorias();
         cargarProveedores();
         
-        // Configurar validaciones
-        configurarValidaciones();
+    } catch (Exception e) {
+        System.err.println("Error al inicializar AgregarProductoController: " + e.getMessage());
+        e.printStackTrace();
+        mostrarError("Error de Inicialización", 
+            "Error al cargar los datos: " + e.getMessage());
     }
+}
+
+// Método para verificar la conexión
+private boolean verificarConexion() {
+    try {
+        Conexion conexionInstance = Conexion.getInstance();
+        Connection conn = conexionInstance.getConnection();
+        return conn != null && !conn.isClosed();
+    } catch (Exception e) {
+        System.err.println("Error al verificar conexión: " + e.getMessage());
+        return false;
+    }
+}
 
     private void inicializarDAOs() {
         categoriaDAO = new CategoriaDAO();

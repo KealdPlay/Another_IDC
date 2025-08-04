@@ -13,9 +13,9 @@ public class ProveedorDAO {
         this.connection = connection;
     }
 
-    public ProveedorDAO() {
-    }
-    
+public ProveedorDAO() {
+    this.connection = Conexion.getInstance().getConnection(); // ← AGREGAR esta línea
+}
     
     public boolean crear(Proveedor proveedor) {
         String sql = "INSERT INTO proveedores (nombre_proveedor, correo_proveedor, telefono_proveedor) VALUES (?, ?, ?)";

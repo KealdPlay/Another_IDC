@@ -35,17 +35,17 @@ public class Conexion {
         return instance;
     }
 
-    public Connection getConnection() {
-        try {
-            // Verificar si la conexión está cerrada y reconectar si es necesario
-            if (connection == null || connection.isClosed()) {
-                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al verificar/reconectar la base de datos: " + e.getMessage());
+public Connection getConnection() {
+    try {
+        // Verificar si la conexión está cerrada y reconectar si es necesario
+        if (connection == null || connection.isClosed()) {
+            connection = DriverManager.getConnection(FULL_URL, USERNAME, PASSWORD); // ← CAMBIO: usar FULL_URL en lugar de URL
         }
-        return connection;
+    } catch (SQLException e) {
+        System.err.println("Error al verificar/reconectar la base de datos: " + e.getMessage());
     }
+    return connection;
+}
 
     public void closeConnection() {
         try {
