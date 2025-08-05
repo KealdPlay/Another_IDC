@@ -167,24 +167,27 @@ public class ProductoDAO {
         return false;
     }
     
-    public boolean insertarProducto(String nombreProducto, String descripcionProducto,
+    public boolean insertarProducto(int idProducto, String nombreProducto, String descripcionProducto,
                                   double precioProducto, int stockProducto,
                                   String colorProducto, String medidasProducto,
                                   int idCategoria, int idProveedor) {
         
-        String sql = "INSERT INTO productos (nombre_producto, descripcion_producto, " +
+        String sql = "INSERT INTO productos (id_producto, nombre_producto, descripcion_producto, " +
                     "precio_producto, stock_producto, color_producto, medidas_producto, " +
-                    "id_categoria, id_proveedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    "id_categoria, id_proveedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        
         
         try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
-            stmt.setString(1, nombreProducto);
-            stmt.setString(2, descripcionProducto);
-            stmt.setDouble(3, precioProducto);  // Cambiado a setDouble
-            stmt.setInt(4, stockProducto);
-            stmt.setString(5, colorProducto);
-            stmt.setString(6, medidasProducto);
-            stmt.setInt(7, idCategoria);
-            stmt.setInt(8, idProveedor);
+            stmt.setInt(1, idProducto);
+            stmt.setString(2, nombreProducto);
+            stmt.setString(3, descripcionProducto);
+            stmt.setDouble(4, precioProducto);  // Cambiado a setDouble
+            stmt.setInt(5, stockProducto);
+            stmt.setString(6, colorProducto);
+            stmt.setString(7, medidasProducto);
+            stmt.setInt(8, idCategoria);
+            stmt.setInt(9, idProveedor);
             
             int filasAfectadas = stmt.executeUpdate();
             return filasAfectadas > 0;

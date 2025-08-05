@@ -8,9 +8,8 @@
             <file>file:/D:/another_IDC/Another_IDC/src/controller/MainController.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/controller/sesion.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/database/Conexion.java</file>
-            <file>file:/D:/another_IDC/Another_IDC/src/interfaces/Configuracion.java</file>
-            <file>file:/D:/another_IDC/Another_IDC/src/entidades/UsuarioConfiguracion.java</file>
-            <file>file:/D:/another_IDC/Another_IDC/src/controller/ConfiguracionController.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/interfaces/AgregarProductoInterfaz.fxml</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/interfaces/InventarioInterfaz.fxml</file>
             <file>file:/D:/another_IDC/Another_IDC/src/dao/UsuarioDAO.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/entidades/Usuarios.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/controller/ReportesInterfaces.java</file>

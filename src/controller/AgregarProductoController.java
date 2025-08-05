@@ -117,7 +117,6 @@ public class AgregarProductoController implements Initializable {
 
 private void generarIdProducto() {
     try {
-        // Verificar que el ProductoDAO esté inicializado
         if (productoDAO == null) {
             productoDAO = new ProductoDAO();
         }
@@ -126,63 +125,62 @@ private void generarIdProducto() {
         String idGenerado;
         boolean idExiste = true;
         int intentos = 0;
-        final int MAX_INTENTOS = 100; // Límite de seguridad para evitar bucles infinitos
+        final int MAX_INTENTOS = 50; // Reducido para ser más eficiente
         
         do {
-            // Generar ID aleatorio de 12 dígitos
-            StringBuilder sb = new StringBuilder();
+            // Generar ID aleatorio de 9 dígitos (compatible con int)
+            // Rango: 100,000,000 a 999,999,999
+            int idInt = 100000000 + random.nextInt(900000000);
+            idGenerado = String.valueOf(idInt);
             
-            // Primer dígito no puede ser 0 para asegurar que tenga 12 dígitos
-            sb.append(random.nextInt(9) + 1);
-            
-            // Los siguientes 11 dígitos pueden ser cualquier número del 0-9
-            for (int i = 1; i < 12; i++) {
-                sb.append(random.nextInt(10));
-            }
-            
-            idGenerado = sb.toString();
-            
-            // Verificar si el ID ya existe en la base de datos
+            // Verificar si el ID ya existe
             try {
-                idExiste = productoDAO.existe(Integer.parseInt(idGenerado));
-            } catch (NumberFormatException e) {
-                // En caso de error con el número, generar otro
-                idExiste = true;
+                idExiste = productoDAO.existe(idInt);
+                System.out.println("DEBUG - Verificando ID: " + idInt + ", existe: " + idExiste);
+            } catch (Exception e) {
+                System.err.println("Error al verificar ID: " + e.getMessage());
+                idExiste = true; // En caso de error, generar otro
             }
             
             intentos++;
             
-            // Seguridad: si se han hecho muchos intentos, mostrar error
             if (intentos >= MAX_INTENTOS) {
-                mostrarError("Error", "No se pudo generar un ID único después de " + MAX_INTENTOS + " intentos");
-                // Como fallback, usar timestamp
+                System.err.println("ADVERTENCIA: Se alcanzó el máximo de intentos");
+                // Como fallback, usar timestamp más un número aleatorio
                 LocalDateTime now = LocalDateTime.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-                idGenerado = now.format(formatter);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                String timestamp = now.format(formatter);
+                int randomSuffix = random.nextInt(999) + 1;
+                idGenerado = timestamp + String.format("%03d", randomSuffix);
+                
+                // Verificar que no exceda el límite de int
+                try {
+                    Integer.parseInt(idGenerado);
+                } catch (NumberFormatException e) {
+                    // Si es muy largo, usar solo los últimos 9 dígitos
+                    idGenerado = idGenerado.substring(idGenerado.length() - 9);
+                }
                 break;
             }
             
         } while (idExiste);
         
-        // Establecer el ID generado en el campo de texto
         txtId.setText(idGenerado);
-        
-        System.out.println("ID generado: " + idGenerado + " (intentos: " + intentos + ")");
+        System.out.println("ID generado exitosamente: " + idGenerado + " (intentos: " + intentos + ")");
         
     } catch (Exception e) {
         System.err.println("Error al generar ID del producto: " + e.getMessage());
         e.printStackTrace();
         
-        // Como fallback, usar el método anterior basado en timestamp
+        // Fallback final: usar timestamp simple
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
         String fallbackId = now.format(formatter);
         txtId.setText(fallbackId);
         
         mostrarError("Advertencia", "Se usó un ID basado en fecha/hora debido a un error en la generación aleatoria");
     }
 }
-
     private void cargarCategorias() {
         try {
             System.out.println("DEBUG - Iniciando carga de categorías...");
@@ -384,6 +382,7 @@ private void generarIdProducto() {
                 String medidas = txtMedidas.getText().trim();
                 
                 System.out.println("=== VALORES FINALES ===");
+                System.out.println("ID: " + idProducto);
                 System.out.println("Nombre: " + nombre);
                 System.out.println("Detalles: " + detalles);
                 System.out.println("Precio: " + precioStr);
@@ -395,6 +394,7 @@ private void generarIdProducto() {
                 
                 // Insertar producto
                 boolean guardado = productoDAO.insertarProducto(
+                    idProducto,
                     nombre,
                     detalles,
                     Double.parseDouble(precioStr),

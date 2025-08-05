@@ -496,6 +496,8 @@ private javafx.scene.layout.StackPane crearAvatarUsuario() {
             Configuracion configuracion = new Configuracion();
             Stage nuevaVentana = new Stage();
             configuracion.start(nuevaVentana);
+            Stage currentStage = (Stage) btnReportes.getScene().getWindow();
+            currentStage.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
