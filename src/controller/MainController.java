@@ -3,7 +3,6 @@ package controller;
 import dao.ProductoDAO;
 import entidades.Producto;
 import entidades.Usuarios;
-import interfaces.Configuracion;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -493,14 +492,26 @@ private javafx.scene.layout.StackPane crearAvatarUsuario() {
     private void irAConfiguracion() {
         System.out.println("Ir a Configuración");
         try {
-            Configuracion configuracion = new Configuracion();
-            Stage nuevaVentana = new Stage();
-            configuracion.start(nuevaVentana);
-            Stage currentStage = (Stage) btnReportes.getScene().getWindow();
-            currentStage.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/configuracion-view.fxml"));
+        Scene scene = new Scene(loader.load());
+        
+        // Obtener el controlador y pasarle el usuario actual
+        ConfiguracionController configuracionController = loader.getController();
+        configuracionController.inicializarConUsuario(usuarioActual);
+        
+        Stage nuevaVentana = new Stage();
+        nuevaVentana.setScene(scene);
+        nuevaVentana.setTitle("IDC - Configuración");
+        nuevaVentana.setMaximized(true);
+        nuevaVentana.show();
+        
+        // Cerrar la ventana actual
+        Stage currentStage = (Stage) btnReportes.getScene().getWindow();
+        currentStage.close();
+    } catch (Exception e) {
+        System.err.println("Error al cargar la ventana de configuración: " + e.getMessage());
+        e.printStackTrace();
+    }
     }
     
     private void cerrarSesion() {
