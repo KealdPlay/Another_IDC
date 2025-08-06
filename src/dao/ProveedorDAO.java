@@ -66,6 +66,23 @@ public class ProveedorDAO {
         }
     }
     
+    // NUEVO: Método para insertar proveedor con información completa
+    public boolean insertarProveedorCompleto(String nombreProveedor, String correo, String telefono) throws SQLException {
+        String query = "INSERT INTO proveedores (nombre_proveedor, correo_proveedor, telefono_proveedor) VALUES (?, ?, ?)";
+        
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, nombreProveedor);
+            stmt.setString(2, correo.isEmpty() ? null : correo);
+            stmt.setString(3, telefono.isEmpty() ? null : telefono);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+        }
+    }
+    
     public boolean existeProveedor(String nombreProveedor) throws SQLException {
         String query = "SELECT COUNT(*) FROM proveedores WHERE nombre_proveedor = ?";
         

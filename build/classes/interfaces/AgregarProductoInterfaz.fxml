@@ -109,9 +109,14 @@
                      <Label text="Color:" textFill="WHITE" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
                      <TextField fx:id="txtColor" maxWidth="Infinity" promptText="Ingrese Color del Producto" style="-fx-background-color: #3a3a3a; -fx-text-fill: white; -fx-prompt-text-fill: #8a8a8a; -fx-border-color: #4a4a4a;" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" />
 
-                     <!-- Sección (ComboBox) -->
+                     <!-- Sección (ComboBox) con botón -->
                      <Label text="Sección:" textFill="WHITE" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
-                     <ComboBox fx:id="cmbSeccion" maxWidth="Infinity" promptText="Seleccione Sección" style="-fx-background-color: #3a3a3a; -fx-text-fill: white; -fx-prompt-text-fill: #8a8a8a; -fx-border-color: #4a4a4a;" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" />
+                     <HBox spacing="10.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6">
+                        <children>
+                           <ComboBox fx:id="cmbSeccion" maxWidth="Infinity" promptText="Seleccione Sección" style="-fx-background-color: #3a3a3a;" HBox.hgrow="ALWAYS" />
+                           <Button fx:id="btnAgregarCategoria" minWidth="120.0" mnemonicParsing="false" onAction="#agregarCategoria" style="-fx-background-color: #3a3a3a; -fx-text-fill: white; -fx-prompt-text-fill: #8a8a8a; -fx-border-color: #4a4a4a;" text="Agregar Categoría" HBox.hgrow="NEVER" />
+                        </children>
+                     </HBox>
 
                      <!-- Proveedor (ComboBox) con botón -->
                      <Label text="Proveedor:" textFill="WHITE" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.rowIndex="7" GridPane.valignment="CENTER" />

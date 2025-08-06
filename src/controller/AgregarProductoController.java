@@ -18,6 +18,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.geometry.Insets;
+import javafx.scene.layout.GridPane;
+import javafx.application.Platform;
 
 import java.io.File;
 import java.net.URL;
@@ -43,6 +46,7 @@ public class AgregarProductoController implements Initializable {
     @FXML private ComboBox<String> cmbSeccion;
     @FXML private ComboBox<String> cmbProveedor;
     @FXML private Button btnAgregarProveedor;
+    @FXML private Button btnAgregarCategoria;
     @FXML private TextArea txtDetalles;
     @FXML private Button btnGuardar;
 
@@ -53,7 +57,6 @@ public class AgregarProductoController implements Initializable {
     private ProveedorDAO proveedorDAO;
     private ProductoDAO productoDAO;
 
-    // MEJORA en AgregarProductoController.java - método initialize con mejor manejo de errores
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("DEBUG - Iniciando initialize...");
@@ -115,72 +118,66 @@ public class AgregarProductoController implements Initializable {
         productoDAO = new ProductoDAO();
     }
 
-private void generarIdProducto() {
-    try {
-        if (productoDAO == null) {
-            productoDAO = new ProductoDAO();
-        }
-        
-        Random random = new Random();
-        String idGenerado;
-        boolean idExiste = true;
-        int intentos = 0;
-        final int MAX_INTENTOS = 50; // Reducido para ser más eficiente
-        
-        do {
-            // Generar ID aleatorio de 9 dígitos (compatible con int)
-            // Rango: 100,000,000 a 999,999,999
-            int idInt = 100000000 + random.nextInt(900000000);
-            idGenerado = String.valueOf(idInt);
-            
-            // Verificar si el ID ya existe
-            try {
-                idExiste = productoDAO.existe(idInt);
-                System.out.println("DEBUG - Verificando ID: " + idInt + ", existe: " + idExiste);
-            } catch (Exception e) {
-                System.err.println("Error al verificar ID: " + e.getMessage());
-                idExiste = true; // En caso de error, generar otro
+    private void generarIdProducto() {
+        try {
+            if (productoDAO == null) {
+                productoDAO = new ProductoDAO();
             }
             
-            intentos++;
+            Random random = new Random();
+            String idGenerado;
+            boolean idExiste = true;
+            int intentos = 0;
+            final int MAX_INTENTOS = 50;
             
-            if (intentos >= MAX_INTENTOS) {
-                System.err.println("ADVERTENCIA: Se alcanzó el máximo de intentos");
-                // Como fallback, usar timestamp más un número aleatorio
-                LocalDateTime now = LocalDateTime.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-                String timestamp = now.format(formatter);
-                int randomSuffix = random.nextInt(999) + 1;
-                idGenerado = timestamp + String.format("%03d", randomSuffix);
+            do {
+                int idInt = 100000000 + random.nextInt(900000000);
+                idGenerado = String.valueOf(idInt);
                 
-                // Verificar que no exceda el límite de int
                 try {
-                    Integer.parseInt(idGenerado);
-                } catch (NumberFormatException e) {
-                    // Si es muy largo, usar solo los últimos 9 dígitos
-                    idGenerado = idGenerado.substring(idGenerado.length() - 9);
+                    idExiste = productoDAO.existe(idInt);
+                    System.out.println("DEBUG - Verificando ID: " + idInt + ", existe: " + idExiste);
+                } catch (Exception e) {
+                    System.err.println("Error al verificar ID: " + e.getMessage());
+                    idExiste = true;
                 }
-                break;
-            }
+                
+                intentos++;
+                
+                if (intentos >= MAX_INTENTOS) {
+                    System.err.println("ADVERTENCIA: Se alcanzó el máximo de intentos");
+                    LocalDateTime now = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    String timestamp = now.format(formatter);
+                    int randomSuffix = random.nextInt(999) + 1;
+                    idGenerado = timestamp + String.format("%03d", randomSuffix);
+                    
+                    try {
+                        Integer.parseInt(idGenerado);
+                    } catch (NumberFormatException e) {
+                        idGenerado = idGenerado.substring(idGenerado.length() - 9);
+                    }
+                    break;
+                }
+                
+            } while (idExiste);
             
-        } while (idExiste);
-        
-        txtId.setText(idGenerado);
-        System.out.println("ID generado exitosamente: " + idGenerado + " (intentos: " + intentos + ")");
-        
-    } catch (Exception e) {
-        System.err.println("Error al generar ID del producto: " + e.getMessage());
-        e.printStackTrace();
-        
-        // Fallback final: usar timestamp simple
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
-        String fallbackId = now.format(formatter);
-        txtId.setText(fallbackId);
-        
-        mostrarError("Advertencia", "Se usó un ID basado en fecha/hora debido a un error en la generación aleatoria");
+            txtId.setText(idGenerado);
+            System.out.println("ID generado exitosamente: " + idGenerado + " (intentos: " + intentos + ")");
+            
+        } catch (Exception e) {
+            System.err.println("Error al generar ID del producto: " + e.getMessage());
+            e.printStackTrace();
+            
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
+            String fallbackId = now.format(formatter);
+            txtId.setText(fallbackId);
+            
+            mostrarError("Advertencia", "Se usó un ID basado en fecha/hora debido a un error en la generación aleatoria");
+        }
     }
-}
+
     private void cargarCategorias() {
         try {
             System.out.println("DEBUG - Iniciando carga de categorías...");
@@ -264,14 +261,10 @@ private void generarIdProducto() {
         });
 
         // Validar que solo se ingresen números y punto decimal en Precio
-        // CORRECCIÓN: Permitir números enteros y decimales
         txtPrecio.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Permitir números enteros y decimales (ej: 69, 69.5, 69.50)
             if (!newValue.matches("\\d*\\.?\\d*")) {
-                // Si no coincide, mantener el valor anterior
                 txtPrecio.setText(oldValue);
             }
-            // Evitar múltiples puntos decimales
             if (newValue.indexOf('.') != newValue.lastIndexOf('.')) {
                 txtPrecio.setText(oldValue);
             }
@@ -283,7 +276,6 @@ private void generarIdProducto() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleccionar Imagen del Producto");
         
-        // Filtros de extensión
         FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter(
             "Archivos de Imagen", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp"
         );
@@ -307,31 +299,83 @@ private void generarIdProducto() {
 
     @FXML
     private void agregarProveedor() {
-        TextInputDialog dialog = new TextInputDialog();
+        Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Agregar Proveedor");
-        dialog.setHeaderText("Nuevo Proveedor");
-        dialog.setContentText("Nombre del proveedor:");
-
-        Optional<String> result = dialog.showAndWait();
-        if (result.isPresent() && !result.get().trim().isEmpty()) {
-            String nombreProveedor = result.get().trim();
+        dialog.setHeaderText("Complete la información del nuevo proveedor");
+        
+        // Crear el contenido del diálogo
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+        
+        TextField nombreField = new TextField();
+        nombreField.setPromptText("Nombre del proveedor");
+        
+        TextField correoField = new TextField();
+        correoField.setPromptText("correo@ejemplo.com");
+        
+        TextField telefonoField = new TextField();
+        telefonoField.setPromptText("Teléfono");
+        
+        // Validar que solo se ingresen números en teléfono
+        telefonoField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                telefonoField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
+        
+        grid.add(new Label("Nombre:"), 0, 0);
+        grid.add(nombreField, 1, 0);
+        grid.add(new Label("Correo:"), 0, 1);
+        grid.add(correoField, 1, 1);
+        grid.add(new Label("Teléfono:"), 0, 2);
+        grid.add(telefonoField, 1, 2);
+        
+        dialog.getDialogPane().setContent(grid);
+        
+        // Agregar botones
+        ButtonType agregarButtonType = new ButtonType("Agregar", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(agregarButtonType, ButtonType.CANCEL);
+        
+        // Enfocar el campo nombre al abrir
+        Platform.runLater(() -> nombreField.requestFocus());
+        
+        Optional<ButtonType> result = dialog.showAndWait();
+        
+        if (result.isPresent() && result.get() == agregarButtonType) {
+            String nombre = nombreField.getText().trim();
+            String correo = correoField.getText().trim();
+            String telefono = telefonoField.getText().trim();
+            
+            // Validar campos obligatorios
+            if (nombre.isEmpty()) {
+                mostrarError("Error", "El nombre del proveedor es obligatorio");
+                return;
+            }
+            
+            // Validar formato de correo si no está vacío
+            if (!correo.isEmpty() && !correo.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                mostrarError("Error", "El formato del correo electrónico no es válido");
+                return;
+            }
             
             try {
                 // Verificar si ya existe el proveedor
-                if (proveedorDAO.existeProveedor(nombreProveedor)) {
-                    mostrarError("Error", "El proveedor ya existe");
+                if (proveedorDAO.existeProveedor(nombre)) {
+                    mostrarError("Error", "Ya existe un proveedor con ese nombre");
                     return;
                 }
                 
                 // Insertar nuevo proveedor
-                boolean insertado = proveedorDAO.insertarProveedor(nombreProveedor);
+                boolean insertado = proveedorDAO.insertarProveedorCompleto(nombre, correo, telefono);
                 
                 if (insertado) {
                     // Recargar la lista de proveedores
                     cargarProveedores();
                     
                     // Seleccionar el nuevo proveedor
-                    cmbProveedor.setValue(nombreProveedor);
+                    cmbProveedor.setValue(nombre);
                     
                     mostrarInfo("Éxito", "Proveedor agregado correctamente");
                 } else {
@@ -340,6 +384,80 @@ private void generarIdProducto() {
                 
             } catch (SQLException e) {
                 mostrarError("Error", "No se pudo agregar el proveedor: " + e.getMessage());
+            }
+        }
+    }
+    
+    @FXML
+    private void agregarCategoria() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Agregar Categoría");
+        dialog.setHeaderText("Complete la información de la nueva categoría");
+        
+        // Crear el contenido del diálogo
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+        
+        TextField nombreField = new TextField();
+        nombreField.setPromptText("Nombre de la categoría");
+        
+        TextArea descripcionArea = new TextArea();
+        descripcionArea.setPromptText("Descripción de la categoría (opcional)");
+        descripcionArea.setPrefRowCount(3);
+        descripcionArea.setWrapText(true);
+        
+        grid.add(new Label("Nombre:"), 0, 0);
+        grid.add(nombreField, 1, 0);
+        grid.add(new Label("Descripción:"), 0, 1);
+        grid.add(descripcionArea, 1, 1);
+        
+        dialog.getDialogPane().setContent(grid);
+        
+        // Agregar botones
+        ButtonType agregarButtonType = new ButtonType("Agregar", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(agregarButtonType, ButtonType.CANCEL);
+        
+        // Enfocar el campo nombre al abrir
+        Platform.runLater(() -> nombreField.requestFocus());
+        
+        Optional<ButtonType> result = dialog.showAndWait();
+        
+        if (result.isPresent() && result.get() == agregarButtonType) {
+            String nombre = nombreField.getText().trim();
+            String descripcion = descripcionArea.getText().trim();
+            
+            // Validar campo obligatorio
+            if (nombre.isEmpty()) {
+                mostrarError("Error", "El nombre de la categoría es obligatorio");
+                return;
+            }
+            
+            try {
+                // Verificar si ya existe la categoría
+                if (categoriaDAO.existeCategoria(nombre)) {
+                    mostrarError("Error", "Ya existe una categoría con ese nombre");
+                    return;
+                }
+                
+                // Insertar nueva categoría
+                boolean insertado = categoriaDAO.insertarCategoria(nombre, descripcion);
+                
+                if (insertado) {
+                    // Recargar la lista de categorías
+                    cargarCategorias();
+                    
+                    // Seleccionar la nueva categoría
+                    cmbSeccion.setValue(nombre);
+                    
+                    mostrarInfo("Éxito", "Categoría agregada correctamente");
+                } else {
+                    mostrarError("Error", "No se pudo agregar la categoría");
+                }
+                
+            } catch (SQLException e) {
+                mostrarError("Error", "No se pudo agregar la categoría: " + e.getMessage());
             }
         }
     }

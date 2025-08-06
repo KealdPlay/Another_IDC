@@ -104,6 +104,41 @@ public class CategoriaDAO {
         }
     }
     
+    // NUEVO: Método para verificar si existe una categoría
+    public boolean existeCategoria(String nombreCategoria) throws SQLException {
+        String query = "SELECT COUNT(*) FROM categorias WHERE nombre_categoria = ?";
+        
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, nombreCategoria);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
+        }
+    }
+    
+    // NUEVO: Método para insertar categoría completa
+    public boolean insertarCategoria(String nombreCategoria, String descripcion) throws SQLException {
+        String query = "INSERT INTO categorias (nombre_categoria, descripcion) VALUES (?, ?)";
+        
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, nombreCategoria);
+            stmt.setString(2, descripcion.isEmpty() ? null : descripcion);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+        }
+    }
+    
     public boolean actualizar(Categoria categoria) {
         String sql = "UPDATE categorias SET nombre_categoria = ?, descripcion = ? WHERE id_categoria = ?";
         
