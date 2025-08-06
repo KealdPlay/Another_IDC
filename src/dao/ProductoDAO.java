@@ -1,12 +1,12 @@
-
 package dao;
 
 import database.Conexion;
 import entidades.Producto;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
+import utils.ImageUtils;
 
 public class ProductoDAO {
     private Conexion conexion;
@@ -151,32 +151,20 @@ public class ProductoDAO {
     }
     
     public Producto obtenerProductoPorId(int id) throws SQLException {
-    String sql = "SELECT * FROM productos WHERE id_producto = ?";
-    
-    try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
-        stmt.setInt(1, id);
+        String sql = "SELECT * FROM productos WHERE id_producto = ?";
         
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                Producto producto = new Producto();
-                producto.setIdProducto(rs.getInt("id_producto"));
-                producto.setNombreProducto(rs.getString("nombre_producto"));
-                producto.setDescripcionProducto(rs.getString("descripcion_producto"));
-                producto.setPrecioProducto(rs.getBigDecimal("precio_producto"));
-                producto.setStockProducto(rs.getInt("stock_producto"));
-                producto.setColorProducto(rs.getString("color_producto"));
-                producto.setMedidasProducto(rs.getString("medidas_producto"));
-                producto.setIdCategoria(rs.getInt("id_categoria"));
-                producto.setIdProveedor(rs.getInt("id_proveedor"));
-                // Si tienes campo de fecha: producto.setFechaRegistro(rs.getTimestamp("fecha_registro"));
-                
-                return producto;
+        try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearResultSet(rs);
+                }
             }
         }
+        
+        return null;
     }
-    
-    return null;
-}
     
     //VERIFICACION DE EXISTENCIA
     public boolean existe(int id) {
@@ -196,47 +184,55 @@ public class ProductoDAO {
     }
     
     public boolean eliminarProducto(int id) throws SQLException {
-    String sql = "DELETE FROM productos WHERE id_producto = ?";
-    
-    try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
-        stmt.setInt(1, id);
+        // Primero obtener la información del producto para eliminar su imagen
+        Producto producto = obtenerProductoPorId(id);
+        if (producto != null && producto.getImagenProducto() != null) {
+            ImageUtils.deleteProductImage(producto.getImagenProducto());
+        }
         
-        int filasAfectadas = stmt.executeUpdate();
-        return filasAfectadas > 0;
+        String sql = "DELETE FROM productos WHERE id_producto = ?";
+        
+        try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+        }
     }
-}
     
     public boolean actualizarStock(int id, int nuevoStock) throws SQLException {
-    String sql = "UPDATE productos SET stock_producto = ? WHERE id_producto = ?";
-    
-    try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
-        stmt.setInt(1, nuevoStock);
-        stmt.setInt(2, id);
+        String sql = "UPDATE productos SET stock_producto = ? WHERE id_producto = ?";
         
-        int filasAfectadas = stmt.executeUpdate();
-        return filasAfectadas > 0;
+        try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, nuevoStock);
+            stmt.setInt(2, id);
+            
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+        }
     }
-}
     
+    // Método insertarProducto actualizado con imagen
     public boolean insertarProducto(int idProducto, String nombreProducto, String descripcionProducto,
                                   double precioProducto, int stockProducto,
                                   String colorProducto, String medidasProducto,
-                                  int idCategoria, int idProveedor) {
+                                  int idCategoria, int idProveedor, String imagenProducto) {
         
         String sql = "INSERT INTO productos (id_producto, nombre_producto, descripcion_producto, " +
                     "precio_producto, stock_producto, color_producto, medidas_producto, " +
-                    "id_categoria, id_proveedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "id_categoria, id_proveedor, imagen_producto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
-            stmt.setInt(1,idProducto);
+            stmt.setInt(1, idProducto);
             stmt.setString(2, nombreProducto);
             stmt.setString(3, descripcionProducto);
-            stmt.setDouble(4, precioProducto);  // Cambiado a setDouble
+            stmt.setDouble(4, precioProducto);
             stmt.setInt(5, stockProducto);
             stmt.setString(6, colorProducto);
             stmt.setString(7, medidasProducto);
             stmt.setInt(8, idCategoria);
             stmt.setInt(9, idProveedor);
+            stmt.setString(10, imagenProducto);
             
             int filasAfectadas = stmt.executeUpdate();
             return filasAfectadas > 0;
@@ -248,19 +244,62 @@ public class ProductoDAO {
         }
     }
     
+    // Método insertarProducto sin imagen (compatibilidad hacia atrás)
+    public boolean insertarProducto(int idProducto, String nombreProducto, String descripcionProducto,
+                                  double precioProducto, int stockProducto,
+                                  String colorProducto, String medidasProducto,
+                                  int idCategoria, int idProveedor) {
+        return insertarProducto(idProducto, nombreProducto, descripcionProducto, 
+                              precioProducto, stockProducto, colorProducto, medidasProducto,
+                              idCategoria, idProveedor, null);
+    }
     
+    // Método para actualizar imagen de producto
+    public boolean actualizarImagenProducto(int idProducto, String nuevaImagen) throws SQLException {
+        // Obtener la imagen anterior para eliminarla
+        Producto producto = obtenerProductoPorId(idProducto);
+        String imagenAnterior = null;
+        if (producto != null) {
+            imagenAnterior = producto.getImagenProducto();
+        }
+        
+        String sql = "UPDATE productos SET imagen_producto = ? WHERE id_producto = ?";
+        
+        try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, nuevaImagen);
+            stmt.setInt(2, idProducto);
+            
+            int filasAfectadas = stmt.executeUpdate();
+            
+            // Si la actualización fue exitosa, eliminar la imagen anterior
+            if (filasAfectadas > 0 && imagenAnterior != null && !imagenAnterior.equals(nuevaImagen)) {
+                ImageUtils.deleteProductImage(imagenAnterior);
+            }
+            
+            return filasAfectadas > 0;
+        }
+    }
     
     private Producto mapearResultSet(ResultSet rs) throws SQLException {
-        return new Producto(
-            rs.getInt("id_producto"),
-            rs.getString("nombre_producto"),
-            rs.getString("descripcion_producto"),
-            rs.getBigDecimal("precio_producto"),
-            rs.getInt("stock_producto"),
-            rs.getString("color_producto"),
-            rs.getString("medidas_producto"),
-            rs.getInt("id_categoria"),
-            rs.getInt("id_proveedor")
-        );
+        Producto producto = new Producto();
+        producto.setIdProducto(rs.getInt("id_producto"));
+        producto.setNombreProducto(rs.getString("nombre_producto"));
+        producto.setDescripcionProducto(rs.getString("descripcion_producto"));
+        producto.setPrecioProducto(rs.getBigDecimal("precio_producto"));
+        producto.setStockProducto(rs.getInt("stock_producto"));
+        producto.setColorProducto(rs.getString("color_producto"));
+        producto.setMedidasProducto(rs.getString("medidas_producto"));
+        producto.setIdCategoria(rs.getInt("id_categoria"));
+        producto.setIdProveedor(rs.getInt("id_proveedor"));
+        
+        // Manejar el campo imagen que puede no existir en tablas antiguas
+        try {
+            producto.setImagenProducto(rs.getString("imagen_producto"));
+        } catch (SQLException e) {
+            // La columna no existe, asignar null
+            producto.setImagenProducto(null);
+        }
+        
+        return producto;
     }
 }

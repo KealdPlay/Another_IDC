@@ -1,12 +1,5 @@
-
 package entidades;
 
-import database.Conexion;
-import entidades.Producto;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.math.BigDecimal;
 import java.math.BigDecimal;
 
 public class Producto {
@@ -19,13 +12,16 @@ public class Producto {
     private String medidasProducto;
     private int idCategoria;
     private int idProveedor;
+    private String imagenProducto; // Nuevo campo para la imagen
     
     //CONSTRUCTORES
-     public Producto() {
+    public Producto() {
          
     }
 
-    public Producto(int idProducto, String nombreProducto, String descripcionProducto, BigDecimal precioProducto, int stockProducto, String colorProducto, String medidasProducto, int idCategoria, int idProveedor) {
+    public Producto(int idProducto, String nombreProducto, String descripcionProducto, 
+                   BigDecimal precioProducto, int stockProducto, String colorProducto, 
+                   String medidasProducto, int idCategoria, int idProveedor) {
         this.idProducto = idProducto;
         this.nombreProducto = nombreProducto;
         this.descripcionProducto = descripcionProducto;
@@ -37,9 +33,11 @@ public class Producto {
         this.idProveedor = idProveedor;
     }
     
-        //SIN ID PARA INSERCIONES
-
-    public Producto(String nombreProducto, String descripcionProducto, BigDecimal precioProducto, int stockProducto, String colorProducto, String medidasProducto, int idCategoria, int idProveedor) {
+    // Constructor con imagen
+    public Producto(int idProducto, String nombreProducto, String descripcionProducto, 
+                   BigDecimal precioProducto, int stockProducto, String colorProducto, 
+                   String medidasProducto, int idCategoria, int idProveedor, String imagenProducto) {
+        this.idProducto = idProducto;
         this.nombreProducto = nombreProducto;
         this.descripcionProducto = descripcionProducto;
         this.precioProducto = precioProducto;
@@ -48,6 +46,22 @@ public class Producto {
         this.medidasProducto = medidasProducto;
         this.idCategoria = idCategoria;
         this.idProveedor = idProveedor;
+        this.imagenProducto = imagenProducto;
+    }
+    
+    // Constructor sin ID para inserciones
+    public Producto(String nombreProducto, String descripcionProducto, BigDecimal precioProducto, 
+                   int stockProducto, String colorProducto, String medidasProducto, 
+                   int idCategoria, int idProveedor, String imagenProducto) {
+        this.nombreProducto = nombreProducto;
+        this.descripcionProducto = descripcionProducto;
+        this.precioProducto = precioProducto;
+        this.stockProducto = stockProducto;
+        this.colorProducto = colorProducto;
+        this.medidasProducto = medidasProducto;
+        this.idCategoria = idCategoria;
+        this.idProveedor = idProveedor;
+        this.imagenProducto = imagenProducto;
     }
 
     //GETTERS Y SETTERS
@@ -122,12 +136,29 @@ public class Producto {
     public void setIdProveedor(int idProveedor) {
         this.idProveedor = idProveedor;
     }
-    
-    //TO STRING
 
-    @Override
-    public String toString() {
-        return "Producto{" + "idProducto=" + idProducto + ", nombreProducto=" + nombreProducto + ", descripcionProducto=" + descripcionProducto + ", precioProducto=" + precioProducto + ", stockProducto=" + stockProducto + ", colorProducto=" + colorProducto + ", medidasProducto=" + medidasProducto + ", idCategoria=" + idCategoria + ", idProveedor=" + idProveedor + '}';
+    public String getImagenProducto() {
+        return imagenProducto;
+    }
+
+    public void setImagenProducto(String imagenProducto) {
+        this.imagenProducto = imagenProducto;
     }
     
+    //TO STRING
+    @Override
+    public String toString() {
+        return "Producto{" + 
+               "idProducto=" + idProducto + 
+               ", nombreProducto=" + nombreProducto + 
+               ", descripcionProducto=" + descripcionProducto + 
+               ", precioProducto=" + precioProducto + 
+               ", stockProducto=" + stockProducto + 
+               ", colorProducto=" + colorProducto + 
+               ", medidasProducto=" + medidasProducto + 
+               ", idCategoria=" + idCategoria + 
+               ", idProveedor=" + idProveedor + 
+               ", imagenProducto=" + imagenProducto + 
+               '}';
+    }
 }

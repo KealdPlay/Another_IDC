@@ -8,6 +8,7 @@ import dao.ProveedorDAO;
 import java.util.Random;
 import dao.ProductoDAO;
 import database.Conexion;
+import utils.ImageUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -50,7 +51,8 @@ public class AgregarProductoController implements Initializable {
     @FXML private TextArea txtDetalles;
     @FXML private Button btnGuardar;
 
-    private String rutaImagenSeleccionada = null;
+    private File archivoImagenSeleccionado = null;
+    private String nombreImagenGuardada = null;
     
     // DAOs
     private CategoriaDAO categoriaDAO;
@@ -286,13 +288,20 @@ public class AgregarProductoController implements Initializable {
         
         if (selectedFile != null) {
             try {
+                // Mostrar la imagen seleccionada
                 Image image = new Image(selectedFile.toURI().toString());
                 imageViewProducto.setImage(image);
                 imageViewProducto.setVisible(true);
                 placeholderImagen.setVisible(false);
-                rutaImagenSeleccionada = selectedFile.getAbsolutePath();
+                
+                // Guardar referencia del archivo seleccionado
+                archivoImagenSeleccionado = selectedFile;
+                
+                System.out.println("Imagen seleccionada: " + selectedFile.getAbsolutePath());
+                
             } catch (Exception e) {
                 mostrarError("Error", "No se pudo cargar la imagen seleccionada: " + e.getMessage());
+                archivoImagenSeleccionado = null;
             }
         }
     }
@@ -479,6 +488,17 @@ public class AgregarProductoController implements Initializable {
                     return;
                 }
                 
+                // Guardar imagen si fue seleccionada
+                String nombreImagenGuardada = null;
+                if (archivoImagenSeleccionado != null) {
+                    nombreImagenGuardada = ImageUtils.saveProductImage(archivoImagenSeleccionado, idProducto);
+                    if (nombreImagenGuardada == null) {
+                        mostrarError("Advertencia", "No se pudo guardar la imagen del producto. El producto se guardará sin imagen.");
+                    } else {
+                        System.out.println("Imagen guardada con nombre: " + nombreImagenGuardada);
+                    }
+                }
+                
                 // Obtener IDs de categoria y proveedor
                 String nombreCategoria = cmbSeccion.getValue();
                 String nombreProveedor = cmbProveedor.getValue();
@@ -509,8 +529,9 @@ public class AgregarProductoController implements Initializable {
                 System.out.println("Medidas: " + medidas);
                 System.out.println("ID Categoria: " + idCategoria);
                 System.out.println("ID Proveedor: " + idProveedor);
+                System.out.println("Imagen: " + nombreImagenGuardada);
                 
-                // Insertar producto
+                // Insertar producto con imagen
                 boolean guardado = productoDAO.insertarProducto(
                     idProducto,
                     nombre,
@@ -520,7 +541,8 @@ public class AgregarProductoController implements Initializable {
                     color,
                     medidas,
                     idCategoria,
-                    idProveedor
+                    idProveedor,
+                    nombreImagenGuardada
                 );
                 
                 if (guardado) {
@@ -529,6 +551,10 @@ public class AgregarProductoController implements Initializable {
                     limpiarFormulario();
                 } else {
                     System.err.println("ERROR: No se pudo guardar el producto en la base de datos");
+                    // Si no se pudo guardar el producto, eliminar la imagen guardada
+                    if (nombreImagenGuardada != null) {
+                        ImageUtils.deleteProductImage(nombreImagenGuardada);
+                    }
                     mostrarError("Error", "No se pudo guardar el producto");
                 }
                 
@@ -637,10 +663,12 @@ public class AgregarProductoController implements Initializable {
         cmbSeccion.setValue(null);
         cmbProveedor.setValue(null);
         
+        // Limpiar imagen
         imageViewProducto.setImage(null);
         imageViewProducto.setVisible(false);
         placeholderImagen.setVisible(true);
-        rutaImagenSeleccionada = null;
+        archivoImagenSeleccionado = null;
+        nombreImagenGuardada = null;
         
         generarIdProducto();
     }

@@ -27,14 +27,13 @@ import java.util.ResourceBundle;
 
 public class InventarioController implements Initializable {
     
-    @FXML private AnchorPane mainPane;
-    @FXML private Button backButton;
+    // Referencias FXML actualizadas
     @FXML private ScrollPane scrollPane;
     @FXML private GridPane inventoryGrid;
+    @FXML private Button backButton;
     @FXML private Button addProductButton;
     
     private Usuarios usuarioActual;
-
     private ProductoDAO productoDAO;
     private static final int COLUMNS = 4; // Número de columnas en el grid
     private DecimalFormat currencyFormat = new DecimalFormat("$#,##0");
@@ -54,9 +53,9 @@ public class InventarioController implements Initializable {
         
         // Estilo para las barras de scroll
         scrollPane.setStyle(
-            "-fx-background: #2a2a2a; " +
-            "-fx-background-color: #2a2a2a; " +
-            "-fx-border-color: #2a2a2a;"
+            "-fx-background: #1a1a1a; " +
+            "-fx-background-color: #1a1a1a; " +
+            "-fx-border-color: #1a1a1a;"
         );
     }
     
@@ -299,85 +298,121 @@ public class InventarioController implements Initializable {
         return card;
     }
     
-@FXML
-private void handleBackButton() {
-    try {
-        // Cargar la ventana principal
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
-        Scene scene = new Scene(loader.load());
-        
-        // Obtener el controlador principal
-        MainController mainController = loader.getController();
-        if (usuarioActual != null) {
-            mainController.inicializarConUsuario(usuarioActual);
+    @FXML
+    private void handleBackButton() {
+        try {
+            // Cargar la ventana principal
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
+            Scene scene = new Scene(loader.load());
+            
+            // Obtener el controlador principal
+            MainController mainController = loader.getController();
+            if (usuarioActual != null) {
+                mainController.inicializarConUsuario(usuarioActual);
+            }
+            
+            // Crear nueva ventana
+            Stage stage = new Stage();
+            stage.setTitle("IDC - Sistema Principal");
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.show();
+            
+            // Cerrar la ventana actual
+            Stage currentStage = (Stage) backButton.getScene().getWindow();
+            currentStage.close();
+            
+        } catch (IOException e) {
+            System.err.println("Error al regresar a la ventana principal: " + e.getMessage());
+            e.printStackTrace();
         }
-        
-        // Crear nueva ventana
-        Stage stage = new Stage();
-        stage.setTitle("IDC - Sistema Principal");
-        stage.setScene(scene);
-        stage.setMaximized(true);
-        stage.show();
-        
-        // Cerrar la ventana actual
-        Stage currentStage = (Stage) backButton.getScene().getWindow();
-        currentStage.close();
-        
-    } catch (IOException e) {
-        System.err.println("Error al regresar a la ventana principal: " + e.getMessage());
-        e.printStackTrace();
     }
-}
-    
-@FXML
-private void handleAddProduct() {
-    try {
-        // Cargar la interfaz de agregar producto
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/AgregarProductoInterfaz.fxml"));
-        Scene scene = new Scene(loader.load());
         
-        // Obtener el controlador de agregar producto
-        AgregarProductoController agregarController = loader.getController();
-        
-        // Crear nueva ventana
-        Stage stage = new Stage();
-        stage.setTitle("Agregar Nuevo Producto");
-        stage.setScene(scene);
-        stage.setResizable(false); // Opcional: hacer la ventana no redimensionable
-        
-        // Hacer la ventana modal (opcional)
-        stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-        
-        // Centrar la ventana en la pantalla
-        stage.centerOnScreen();
-        
-        // Mostrar la ventana y esperar a que se cierre
-        stage.showAndWait();
-        
-        // Después de cerrar la ventana de agregar producto, refrescar el inventario
-        refreshProducts();
-        
-    } catch (IOException e) {
-        System.err.println("Error al abrir la ventana de agregar producto: " + e.getMessage());
-        e.printStackTrace();
+    @FXML
+    private void handleAddProduct() {
+        try {
+            // Cargar la interfaz de agregar producto
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/AgregarProductoInterfaz.fxml"));
+            Scene scene = new Scene(loader.load());
+            
+            // Obtener el controlador de agregar producto
+            AgregarProductoController agregarController = loader.getController();
+            
+            // Crear nueva ventana
+            Stage stage = new Stage();
+            stage.setTitle("Agregar Nuevo Producto");
+            stage.setScene(scene);
+            stage.setResizable(false); // Opcional: hacer la ventana no redimensionable
+            
+            // Hacer la ventana modal (opcional)
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            
+            // Centrar la ventana en la pantalla
+            stage.centerOnScreen();
+            
+            // Mostrar la ventana y esperar a que se cierre
+            stage.showAndWait();
+            
+            // Después de cerrar la ventana de agregar producto, refrescar el inventario
+            refreshProducts();
+            
+        } catch (IOException e) {
+            System.err.println("Error al abrir la ventana de agregar producto: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-}
-    
+        
     private void handleProductDetails(Producto producto) {
-        // Implementar lógica para mostrar detalles del producto
-        System.out.println("Mostrando detalles del producto: " + producto.getNombreProducto());
-        // abrir una ventana de detalles o edición del producto
+        try {
+            // Cargar la interfaz de detalles del producto
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/DetallesProductoInterfaz.fxml"));
+            Scene scene = new Scene(loader.load());
+            
+            // Obtener el controlador de detalles del producto
+            DetallesProductoController detallesController = loader.getController();
+            
+            // Pasar el producto seleccionado al controlador de detalles
+            detallesController.setProducto(producto);
+            
+            // Crear nueva ventana
+            Stage stage = new Stage();
+            stage.setTitle("Detalles del Producto - " + producto.getNombreProducto());
+            stage.setScene(scene);
+            stage.setResizable(true);
+            stage.setMaximized(false);
+            
+            // Hacer la ventana modal (opcional)
+            stage.initModality(Modality.APPLICATION_MODAL);
+            
+            // Centrar la ventana en la pantalla
+            stage.centerOnScreen();
+            
+            // Mostrar la ventana y esperar a que se cierre
+            stage.showAndWait();
+            
+            // Después de cerrar la ventana de detalles, refrescar el inventario por si hubo cambios
+            refreshProducts();
+            
+        } catch (IOException e) {
+            System.err.println("Error al abrir la ventana de detalles del producto: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Mostrar un mensaje de error al usuario
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("No se pudo abrir la ventana de detalles");
+            alert.setContentText("Ha ocurrido un error al intentar mostrar los detalles del producto: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
-    
+        
     // Método para refrescar la vista después de agregar/editar productos
     public void refreshProducts() {
         loadProducts();
     }
 
-
-
-// Método para establecer el usuario actual
-public void setUsuarioActual(Usuarios usuario) {
-    this.usuarioActual = usuario;
-}
+    // Método para establecer el usuario actual
+    public void setUsuarioActual(Usuarios usuario) {
+        this.usuarioActual = usuario;
+    }
 }

@@ -30,17 +30,21 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
 
 public class DetallesProductoController implements Initializable {
 
     @FXML
-    private Button btnBack;
+    private Button btnVolver;
     
     @FXML
-    private ImageView imgProducto;
+    private ImageView imageViewProducto;
     
     @FXML
-    private Label lblNombreProducto;
+    private VBox placeholderImagen;
+    
+    @FXML
+    private Label lblNombre;
     
     @FXML
     private Label lblStock;
@@ -61,10 +65,16 @@ public class DetallesProductoController implements Initializable {
     private Label lblCategoria;
     
     @FXML
-    private Label lblDescripcion;
+    private Label lblDetalles;
     
     @FXML
     private Label lblProveedor;
+    
+    @FXML
+    private Button btnEditar;
+    
+    @FXML
+    private Button btnEliminar;
     
     // Variable para almacenar el producto seleccionado
     private Producto productoSeleccionado;
@@ -115,7 +125,7 @@ public class DetallesProductoController implements Initializable {
         if (productoSeleccionado == null) return;
         
         // Cargar información básica del producto
-        lblNombreProducto.setText(productoSeleccionado.getNombreProducto() != null ? 
+        lblNombre.setText(productoSeleccionado.getNombreProducto() != null ? 
             productoSeleccionado.getNombreProducto() : "Sin nombre");
             
         lblId.setText(String.valueOf(productoSeleccionado.getIdProducto()));
@@ -136,8 +146,8 @@ public class DetallesProductoController implements Initializable {
             
         // Descripción del producto
         String descripcion = productoSeleccionado.getDescripcionProducto();
-        lblDescripcion.setText(descripcion != null && !descripcion.isEmpty() ? 
-            descripcion : "N/A");
+        lblDetalles.setText(descripcion != null && !descripcion.isEmpty() ? 
+            descripcion : "Sin descripción disponible");
         
         // Cargar categoría
         cargarCategoria();
@@ -152,7 +162,7 @@ public class DetallesProductoController implements Initializable {
    
     private void cargarCategoria() {
         try {
-            if (productoSeleccionado.getIdCategoria() >0) {
+            if (productoSeleccionado.getIdCategoria() > 0) {
                 Categoria categoria = categoriaDAO.obtenerPorId(productoSeleccionado.getIdCategoria());
                 if (categoria != null) {
                     lblCategoria.setText(categoria.getNombreCategoria());
@@ -171,7 +181,7 @@ public class DetallesProductoController implements Initializable {
     
     private void cargarProveedor() {
         try {
-            if (productoSeleccionado.getIdProveedor() >0) {
+            if (productoSeleccionado.getIdProveedor() > 0) {
                 Proveedor proveedor = proveedorDAO.obtenerPorId(productoSeleccionado.getIdProveedor());
                 if (proveedor != null) {
                     lblProveedor.setText(proveedor.getNombreProveedor());
@@ -189,30 +199,88 @@ public class DetallesProductoController implements Initializable {
     
     
     private void cargarImagen() {
-        
+        try {
+            // Aquí podrías implementar la lógica para cargar imágenes desde archivos
+            // Por ahora, mostrar el placeholder
+            if (imageViewProducto != null && placeholderImagen != null) {
+                imageViewProducto.setVisible(false);
+                placeholderImagen.setVisible(true);
+            }
+            
+            // Si tienes imágenes almacenadas, puedes usar algo como:
+            // String rutaImagen = "/imagenes/productos/" + productoSeleccionado.getIdProducto() + ".jpg";
+            // Image imagen = new Image(getClass().getResourceAsStream(rutaImagen));
+            // if (imagen != null && !imagen.isError()) {
+            //     imageViewProducto.setImage(imagen);
+            //     imageViewProducto.setVisible(true);
+            //     placeholderImagen.setVisible(false);
+            // }
+        } catch (Exception e) {
+            System.err.println("Error al cargar imagen: " + e.getMessage());
+            // Mostrar placeholder en caso de error
+            if (imageViewProducto != null && placeholderImagen != null) {
+                imageViewProducto.setVisible(false);
+                placeholderImagen.setVisible(true);
+            }
+        }
     }
     
    
     @FXML
     private void volverAtras() {
         try {
-            // Regresar a la vista anterior (lista de productos)
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/InventarioInterfaz.fxml"));
-            Parent root = loader.load();
+            // Cerrar la ventana actual
+            Stage stage = (Stage) btnVolver.getScene().getWindow();
+            stage.close();
             
-            Stage stage = (Stage) btnBack.getScene().getWindow();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-            
-        } catch (IOException e) {
-            mostrarError("Error al regresar a la vista anterior: " + e.getMessage());
+        } catch (Exception e) {
+            mostrarError("Error al cerrar la ventana: " + e.getMessage());
+        }
+    }
+    
+    @FXML
+    private void editarProducto() {
+        // Implementar lógica para editar producto
+        // Por ahora, mostrar mensaje informativo
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Funcionalidad pendiente");
+        alert.setHeaderText("Editar Producto");
+        alert.setContentText("Esta funcionalidad será implementada próximamente.");
+        alert.showAndWait();
+    }
+    
+    @FXML
+    private void eliminarProducto() {
+        // Confirmación antes de eliminar
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar eliminación");
+        confirmacion.setHeaderText("¿Eliminar producto?");
+        confirmacion.setContentText("¿Está seguro de que desea eliminar el producto '" + 
+                                   productoSeleccionado.getNombreProducto() + "'? Esta acción no se puede deshacer.");
+        
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+            try {
+                boolean eliminado = productoDAO.eliminarProducto(productoSeleccionado.getIdProducto());
+                if (eliminado) {
+                    Alert exito = new Alert(Alert.AlertType.INFORMATION);
+                    exito.setTitle("Producto eliminado");
+                    exito.setHeaderText("Eliminación exitosa");
+                    exito.setContentText("El producto ha sido eliminado correctamente.");
+                    exito.showAndWait();
+                    
+                    // Cerrar la ventana
+                    volverAtras();
+                } else {
+                    mostrarError("No se pudo eliminar el producto.");
+                }
+            } catch (SQLException e) {
+                mostrarError("Error al eliminar el producto: " + e.getMessage());
+            }
         }
     }
     
     
-    
-   
     private void mostrarError(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");

@@ -7,36 +7,63 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="mainPane" prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #1a1a1a;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.InventarioController">
+<VBox xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.InventarioController" style="-fx-background-color: #1a1a1a;">
    <children>
       <!-- Header -->
-      <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="20.0" prefHeight="60.0" prefWidth="1160.0" spacing="20.0">
+      <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #1a1a1a;" VBox.vgrow="NEVER">
          <children>
             <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBackButton" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 24px; -fx-padding: 10px 15px; -fx-background-radius: 10px;" text="&lt;" />
             <Label text="Gestión de inventario" textFill="WHITE">
                <font>
                   <Font size="24.0" />
-               </font></Label>
+               </font>
+            </Label>
          </children>
+         <padding>
+            <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+         </padding>
       </HBox>
       
-      <!-- Inventory Grid -->
-      <ScrollPane fx:id="scrollPane" layoutX="20.0" layoutY="100.0" prefHeight="650.0" prefWidth="1160.0" style="-fx-background-color: #2a2a2a -fx-border-color: #2a2a2a">
-         <content>
-            <GridPane fx:id="inventoryGrid" hgap="20.0" style="-fx-background-color: transparent;" vgap="20.0">
-               <padding>
-                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-               </padding>
-               
-               <!-- Productos del inventario se agregarán dinámicamente -->
-               
-            </GridPane>
-         </content>
-      </ScrollPane>
-      
-      <!-- Add New Product Button (Plus icon) -->
-      <Button fx:id="addProductButton" layoutX="1100.0" layoutY="700.0" mnemonicParsing="false" onAction="#handleAddProduct" prefHeight="60.0" prefWidth="60.0" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 30px;" text="+" />
+      <!-- Content Area - Ocupa todo el espacio restante -->
+      <AnchorPane VBox.vgrow="ALWAYS" style="-fx-background-color: #1a1a1a;">
+         <children>
+            <!-- Inventory Grid ScrollPane - Ocupa todo el AnchorPane -->
+            <ScrollPane fx:id="scrollPane" 
+                       AnchorPane.topAnchor="0.0" 
+                       AnchorPane.bottomAnchor="0.0" 
+                       AnchorPane.leftAnchor="0.0" 
+                       AnchorPane.rightAnchor="0.0"
+                       fitToWidth="true" 
+                       style="-fx-background: #1a1a1a; -fx-background-color: #1a1a1a; -fx-border-color: #1a1a1a;">
+               <content>
+                  <GridPane fx:id="inventoryGrid" 
+                           hgap="20.0" 
+                           vgap="20.0" 
+                           style="-fx-background-color: #1a1a1a;">
+                     <padding>
+                         <Insets bottom="100.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                     
+                     <!-- Productos del inventario se agregarán dinámicamente -->
+                     
+                  </GridPane>
+               </content>
+            </ScrollPane>
+            
+            <!-- Add New Product Button (Plus icon) - Posición fija en la esquina -->
+            <Button fx:id="addProductButton" 
+                   mnemonicParsing="false" 
+                   onAction="#handleAddProduct" 
+                   prefHeight="60.0" 
+                   prefWidth="60.0" 
+                   style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold; -fx-background-radius: 30px;" 
+                   text="+"
+                   AnchorPane.bottomAnchor="20.0" 
+                   AnchorPane.rightAnchor="20.0" />
+         </children>
+      </AnchorPane>
    </children>
-</AnchorPane>
+</VBox>
