@@ -15,9 +15,8 @@ public class CategoriaDAO {
         this.connection = connection;
     }
 
-public CategoriaDAO() {
-    this.connection = Conexion.getInstance().getConnection(); // ← AGREGAR esta línea
-}
+    public CategoriaDAO() {
+    }
     
     
     public boolean crear(Categoria categoria) {
@@ -112,6 +111,23 @@ public CategoriaDAO() {
             return false;
         }
     }
+    
+    public String obtenerNombreCategoria(int id) throws SQLException {
+    String sql = "SELECT nombre_categoria FROM categorias WHERE id_categoria = ?";
+    
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, id);
+        
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("nombre_categoria");
+            }
+        }
+    }
+    
+    return null;
+}
+
     
     private Categoria mapearCategoria(ResultSet rs) throws SQLException {
         Categoria categoria = new Categoria();

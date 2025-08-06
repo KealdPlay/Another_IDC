@@ -10,9 +10,12 @@ public class Conexion {
     private static final String DB = "idc_software";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "H5S@idS3b@s142006";
-    private static final String FULL_URL = URL + DB + "?useSSL=false&serverTimezone=UTC";
+    
+    // SOLUCIÓN: Agregar allowPublicKeyRetrieval=true y useSSL=false
+    private static final String FULL_URL = URL + DB + 
+        "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8";
 
-    public  static Conexion instance;
+    public static Conexion instance;
     public Connection connection;
     
     public Conexion() {
@@ -35,17 +38,17 @@ public class Conexion {
         return instance;
     }
 
-public Connection getConnection() {
-    try {
-        // Verificar si la conexión está cerrada y reconectar si es necesario
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(FULL_URL, USERNAME, PASSWORD); // ← CAMBIO: usar FULL_URL en lugar de URL
+    public Connection getConnection() {
+        try {
+            // Verificar si la conexión está cerrada y reconectar si es necesario
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(FULL_URL, USERNAME, PASSWORD);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al verificar/reconectar la base de datos: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        System.err.println("Error al verificar/reconectar la base de datos: " + e.getMessage());
+        return connection;
     }
-    return connection;
-}
 
     public void closeConnection() {
         try {

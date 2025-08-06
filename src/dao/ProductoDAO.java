@@ -150,6 +150,34 @@ public class ProductoDAO {
         return productos;
     }
     
+    public Producto obtenerProductoPorId(int id) throws SQLException {
+    String sql = "SELECT * FROM productos WHERE id_producto = ?";
+    
+    try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
+        stmt.setInt(1, id);
+        
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                Producto producto = new Producto();
+                producto.setIdProducto(rs.getInt("id_producto"));
+                producto.setNombreProducto(rs.getString("nombre_producto"));
+                producto.setDescripcionProducto(rs.getString("descripcion_producto"));
+                producto.setPrecioProducto(rs.getBigDecimal("precio_producto"));
+                producto.setStockProducto(rs.getInt("stock_producto"));
+                producto.setColorProducto(rs.getString("color_producto"));
+                producto.setMedidasProducto(rs.getString("medidas_producto"));
+                producto.setIdCategoria(rs.getInt("id_categoria"));
+                producto.setIdProveedor(rs.getInt("id_proveedor"));
+                // Si tienes campo de fecha: producto.setFechaRegistro(rs.getTimestamp("fecha_registro"));
+                
+                return producto;
+            }
+        }
+    }
+    
+    return null;
+}
+    
     //VERIFICACION DE EXISTENCIA
     public boolean existe(int id) {
         String sql = "SELECT COUNT(*) FROM productos WHERE id_producto = ?";
@@ -167,6 +195,29 @@ public class ProductoDAO {
         return false;
     }
     
+    public boolean eliminarProducto(int id) throws SQLException {
+    String sql = "DELETE FROM productos WHERE id_producto = ?";
+    
+    try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
+        stmt.setInt(1, id);
+        
+        int filasAfectadas = stmt.executeUpdate();
+        return filasAfectadas > 0;
+    }
+}
+    
+    public boolean actualizarStock(int id, int nuevoStock) throws SQLException {
+    String sql = "UPDATE productos SET stock_producto = ? WHERE id_producto = ?";
+    
+    try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
+        stmt.setInt(1, nuevoStock);
+        stmt.setInt(2, id);
+        
+        int filasAfectadas = stmt.executeUpdate();
+        return filasAfectadas > 0;
+    }
+}
+    
     public boolean insertarProducto(int idProducto, String nombreProducto, String descripcionProducto,
                                   double precioProducto, int stockProducto,
                                   String colorProducto, String medidasProducto,
@@ -176,10 +227,8 @@ public class ProductoDAO {
                     "precio_producto, stock_producto, color_producto, medidas_producto, " +
                     "id_categoria, id_proveedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
-        
-        
         try (PreparedStatement stmt = conexion.getConnection().prepareStatement(sql)) {
-            stmt.setInt(1, idProducto);
+            stmt.setInt(1,idProducto);
             stmt.setString(2, nombreProducto);
             stmt.setString(3, descripcionProducto);
             stmt.setDouble(4, precioProducto);  // Cambiado a setDouble
@@ -198,6 +247,8 @@ public class ProductoDAO {
             return false;
         }
     }
+    
+    
     
     private Producto mapearResultSet(ResultSet rs) throws SQLException {
         return new Producto(

@@ -13,9 +13,9 @@ public class ProveedorDAO {
         this.connection = connection;
     }
 
-public ProveedorDAO() {
-    this.connection = Conexion.getInstance().getConnection(); // ← AGREGAR esta línea
-}
+    public ProveedorDAO() {
+    }
+    
     
     public boolean crear(Proveedor proveedor) {
         String sql = "INSERT INTO proveedores (nombre_proveedor, correo_proveedor, telefono_proveedor) VALUES (?, ?, ?)";
@@ -135,6 +135,22 @@ public ProveedorDAO() {
             throw new SQLException("No se encontró el proveedor: " + nombreProveedor);
         }
     }
+     
+     public String obtenerNombreProveedor(int id) throws SQLException {
+    String sql = "SELECT nombre_proveedor FROM proveedores WHERE id_proveedor = ?";
+    
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, id);
+        
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("nombre_proveedor");
+            }
+        }
+    }
+    
+    return null;
+}
      
     private Proveedor mapearProveedor(ResultSet rs) throws SQLException {
         Proveedor proveedor = new Proveedor();

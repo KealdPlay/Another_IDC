@@ -6,72 +6,81 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #111111;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ConfiguracionController">
-   <children>
-      <!-- Encabezado -->
-      <VBox alignment="TOP_LEFT" spacing="10.0">
-         <padding>
-            <Insets bottom="0.0" left="10.0" right="0.0" top="10.0" />
-         </padding>
-         <children>
-            <Label fx:id="lblTitulo" text="Configuración" textFill="WHITE">
-               <font>
-                  <Font name="Arial" size="50.0" />
-               </font>
-            </Label>
-            <Button fx:id="btnVolver" mnemonicParsing="false" onAction="#handleVolver" style="-fx-background-color: #333333; -fx-text-fill: white;" text="Volver al menú" />
-         </children>
-      </VBox>
-      
-      <!-- Contenido principal -->
-      <VBox alignment="CENTER" spacing="10.0">
-         <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </padding>
-         <children>
-            <!-- Sección de foto de perfil -->
-            <VBox alignment="CENTER" spacing="10.0">
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-               <children>
-                  <Label fx:id="lblSaludo" text="Hola, Usuario!" textFill="WHITE">
-                     <font>
-                        <Font name="Arial" size="16.0" />
-                     </font>
-                  </Label>
-                  <ImageView fx:id="avatar" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
-                  <Button fx:id="btnCambiarFoto" mnemonicParsing="false" onAction="#handleCambiarFoto" style="-fx-background-color: #333333; -fx-text-fill: white;" text="Cambiar Foto" />
-               </children>
-            </VBox>
-            
-            <!-- Sección de correo -->
-            <Label text="Correo:" textFill="WHITE" />
-            <Label fx:id="lblCorreoValor" text="usuario@correo.com" textFill="WHITE">
-               <font>
-                  <Font name="Arial" size="14.0" />
-               </font>
-            </Label>
-            <Button fx:id="btnCambiarGmail" mnemonicParsing="false" onAction="#handleCambiarGmail" style="-fx-background-color: #333333; -fx-text-fill: white;" text="Cambiar Correo" />
-            
-            <!-- Sección de contraseña -->
-            <Label text="Contraseña:" textFill="WHITE" />
-            <PasswordField fx:id="txtContrasena" alignment="CENTER" maxWidth="250.0" text="password" />
-            <Label fx:id="lblContrasenaVisible" text="password" textFill="WHITE" visible="false">
-               <font>
-                  <Font name="Arial" size="14.0" />
-               </font>
-            </Label>
-            <CheckBox fx:id="chkMostrarContrasena" mnemonicParsing="false" onAction="#handleMostrarContrasena" text="Mostrar Contraseña" textFill="WHITE" />
-            <Button fx:id="btnCambiarContrasena" mnemonicParsing="false" onAction="#handleCambiarContrasena" style="-fx-background-color: #333333; -fx-text-fill: white;" text="Cambiar Contraseña" />
-            
-            <!-- Botón guardar -->
-            <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#handleGuardar" style="-fx-background-color: #333333; -fx-text-fill: white;" text="Aceptar" />
-         </children>
-      </VBox>
-   </children>
-</VBox>
+<BorderPane id="AnchorPane" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ConfiguracionController">
+    <top>
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #1a1a1a;">
+            <children>
+                <Button fx:id="btnVolver" mnemonicParsing="false" onAction="#handleVolver" style="-fx-background-color: transparent; -fx-text-fill: #888888; -fx-font-size: 18px;" text="&lt;" />
+                <Label fx:id="lblTitulo" text="Configuración" textFill="#FFFFFF">
+                    <font>
+                        <Font name="System Regular" size="24.0" />
+                    </font>
+                    <HBox.margin>
+                        <Insets left="20.0" />
+                    </HBox.margin>
+                </Label>
+            </children>
+            <padding>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            </padding>
+        </HBox>
+    </top>
+    
+    <center>
+        <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #111111;">
+            <children>
+                <!-- Contenido principal -->
+                <VBox alignment="CENTER" spacing="10.0">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <!-- Sección de foto de perfil -->
+                        <VBox alignment="CENTER" spacing="10.0">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </padding>
+                            <children>
+                                <Label fx:id="lblSaludo" text="Hola, Usuario!" textFill="WHITE">
+                                    <font>
+                                        <Font name="Arial" size="16.0" />
+                                    </font>
+                                </Label>
+                                <ImageView fx:id="avatar" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" />
+                                <Button fx:id="btnCambiarFoto" mnemonicParsing="false" onAction="#handleCambiarFoto" style="-fx-background-color: #333333; -fx-text-fill: white;" text="Cambiar Foto" />
+                            </children>
+                        </VBox>
+                        
+                        <!-- Sección de correo -->
+                        <Label text="Correo:" textFill="WHITE" />
+                        <Label fx:id="lblCorreoValor" text="usuario@correo.com" textFill="WHITE">
+                            <font>
+                                <Font name="Arial" size="14.0" />
+                            </font>
+                        </Label>
+                        <Button fx:id="btnCambiarGmail" mnemonicParsing="false" onAction="#handleCambiarGmail" style="-fx-background-color: #333333; -fx-text-fill: white;" text="Cambiar Correo" />
+                        
+                        <!-- Sección de contraseña -->
+                        <Label text="Contraseña:" textFill="WHITE" />
+                        <PasswordField fx:id="txtContrasena" alignment="CENTER" maxWidth="250.0" text="password" />
+                        <Label fx:id="lblContrasenaVisible" text="password" textFill="WHITE" visible="false">
+                            <font>
+                                <Font name="Arial" size="14.0" />
+                            </font>
+                        </Label>
+                        <CheckBox fx:id="chkMostrarContrasena" mnemonicParsing="false" onAction="#handleMostrarContrasena" text="Mostrar Contraseña" textFill="WHITE" />
+                        <Button fx:id="btnCambiarContrasena" mnemonicParsing="false" onAction="#handleCambiarContrasena" style="-fx-background-color: #333333; -fx-text-fill: white;" text="Cambiar Contraseña" />
+                        
+                        <!-- Botón guardar -->
+                        <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#handleGuardar" style="-fx-background-color: #333333; -fx-text-fill: white;" text="Aceptar" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
