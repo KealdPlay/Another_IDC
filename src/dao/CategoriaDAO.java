@@ -1,4 +1,3 @@
-
 package dao;
 
 import database.Conexion;
@@ -15,9 +14,10 @@ public class CategoriaDAO {
         this.connection = connection;
     }
 
+    // CORRECCIÓN: Inicializar la conexión en el constructor vacío
     public CategoriaDAO() {
+        this.connection = Conexion.getInstance().getConnection();
     }
-    
     
     public boolean crear(Categoria categoria) {
         String sql = "INSERT INTO categorias (nombre_categoria, descripcion) VALUES (?, ?)";
@@ -49,6 +49,11 @@ public class CategoriaDAO {
         String query = "SELECT nombre_categoria FROM categorias";
         List<String> categorias = new ArrayList<>();
         
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (PreparedStatement stmt = connection.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
             
@@ -63,6 +68,12 @@ public class CategoriaDAO {
     public List<Categoria> obtenerTodos() {
         List<Categoria> categorias = new ArrayList<>();
         String sql = "SELECT * FROM categorias";
+        
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -77,6 +88,11 @@ public class CategoriaDAO {
     public int obtenerIdCategoria(String nombreCategoria) throws SQLException {
         String query = "SELECT id_categoria FROM categorias WHERE nombre_categoria = ?";
         
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, nombreCategoria);
             ResultSet rs = stmt.executeQuery();
@@ -90,6 +106,12 @@ public class CategoriaDAO {
     
     public boolean actualizar(Categoria categoria) {
         String sql = "UPDATE categorias SET nombre_categoria = ?, descripcion = ? WHERE id_categoria = ?";
+        
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, categoria.getNombreCategoria());
             stmt.setString(2, categoria.getDescripcion());
@@ -103,6 +125,12 @@ public class CategoriaDAO {
     
     public boolean eliminar(int id) {
         String sql = "DELETE FROM categorias WHERE id_categoria = ?";
+        
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
@@ -113,22 +141,26 @@ public class CategoriaDAO {
     }
     
     public String obtenerNombreCategoria(int id) throws SQLException {
-    String sql = "SELECT nombre_categoria FROM categorias WHERE id_categoria = ?";
-    
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setInt(1, id);
+        String sql = "SELECT nombre_categoria FROM categorias WHERE id_categoria = ?";
         
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getString("nombre_categoria");
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("nombre_categoria");
+                }
             }
         }
+        
+        return null;
     }
-    
-    return null;
-}
 
-    
     private Categoria mapearCategoria(ResultSet rs) throws SQLException {
         Categoria categoria = new Categoria();
         categoria.setIdCategoria(rs.getInt("id_categoria"));

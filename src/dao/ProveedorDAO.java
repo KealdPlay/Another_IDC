@@ -1,5 +1,5 @@
-
 package dao;
+
 import database.Conexion;
 import entidades.Proveedor;
 import java.sql.*;
@@ -13,9 +13,10 @@ public class ProveedorDAO {
         this.connection = connection;
     }
 
+    // CORRECCIÓN: Inicializar la conexión en el constructor vacío
     public ProveedorDAO() {
+        this.connection = Conexion.getInstance().getConnection();
     }
-    
     
     public boolean crear(Proveedor proveedor) {
         String sql = "INSERT INTO proveedores (nombre_proveedor, correo_proveedor, telefono_proveedor) VALUES (?, ?, ?)";
@@ -34,6 +35,11 @@ public class ProveedorDAO {
         String query = "SELECT nombre_proveedor FROM proveedores";
         List<String> proveedores = new ArrayList<>();
         
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (PreparedStatement stmt = connection.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
             
@@ -48,6 +54,11 @@ public class ProveedorDAO {
     public boolean insertarProveedor(String nombreProveedor) throws SQLException {
         String query = "INSERT INTO proveedores (nombre_proveedor) VALUES (?)";
         
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, nombreProveedor);
             int filasAfectadas = stmt.executeUpdate();
@@ -57,6 +68,11 @@ public class ProveedorDAO {
     
     public boolean existeProveedor(String nombreProveedor) throws SQLException {
         String query = "SELECT COUNT(*) FROM proveedores WHERE nombre_proveedor = ?";
+        
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
         
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, nombreProveedor);
@@ -71,6 +87,12 @@ public class ProveedorDAO {
     
     public Proveedor obtenerPorId(int id) {
         String sql = "SELECT * FROM proveedores WHERE id_proveedor = ?";
+        
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -86,6 +108,12 @@ public class ProveedorDAO {
     public List<Proveedor> obtenerTodos() {
         List<Proveedor> proveedores = new ArrayList<>();
         String sql = "SELECT * FROM proveedores";
+        
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -99,6 +127,12 @@ public class ProveedorDAO {
     
     public boolean actualizar(Proveedor proveedor) {
         String sql = "UPDATE proveedores SET nombre_proveedor = ?, correo_proveedor = ?, telefono_proveedor = ? WHERE id_proveedor = ?";
+        
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, proveedor.getNombreProveedor());
             stmt.setString(2, proveedor.getCorreoProveedor());
@@ -113,6 +147,12 @@ public class ProveedorDAO {
     
     public boolean eliminar(int id) {
         String sql = "DELETE FROM proveedores WHERE id_proveedor = ?";
+        
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
@@ -122,8 +162,13 @@ public class ProveedorDAO {
         }
     }
     
-     public int obtenerIdProveedor(String nombreProveedor) throws SQLException {
+    public int obtenerIdProveedor(String nombreProveedor) throws SQLException {
         String query = "SELECT id_proveedor FROM proveedores WHERE nombre_proveedor = ?";
+        
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
         
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, nombreProveedor);
@@ -135,23 +180,28 @@ public class ProveedorDAO {
             throw new SQLException("No se encontró el proveedor: " + nombreProveedor);
         }
     }
-     
-     public String obtenerNombreProveedor(int id) throws SQLException {
-    String sql = "SELECT nombre_proveedor FROM proveedores WHERE id_proveedor = ?";
     
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setInt(1, id);
+    public String obtenerNombreProveedor(int id) throws SQLException {
+        String sql = "SELECT nombre_proveedor FROM proveedores WHERE id_proveedor = ?";
         
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getString("nombre_proveedor");
+        // CORRECCIÓN: Verificar que la conexión no sea null
+        if (connection == null) {
+            connection = Conexion.getInstance().getConnection();
+        }
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("nombre_proveedor");
+                }
             }
         }
+        
+        return null;
     }
     
-    return null;
-}
-     
     private Proveedor mapearProveedor(ResultSet rs) throws SQLException {
         Proveedor proveedor = new Proveedor();
         proveedor.setIdProveedor(rs.getInt("id_proveedor"));
