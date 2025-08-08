@@ -26,6 +26,8 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 public class InventarioController implements Initializable {
     
@@ -37,13 +39,16 @@ public class InventarioController implements Initializable {
     
     private Usuarios usuarioActual;
     private ProductoDAO productoDAO;
-    private static final int COLUMNS = 4; // Número de columnas en el grid
+    private static final double CARD_WIDTH = 280.0; // Ancho de cada tarjeta + espaciado
+    private static final double MIN_MARGIN = 40.0; // Margen mínimo a los lados
     private DecimalFormat currencyFormat = new DecimalFormat("$#,##0");
+    private List<Producto> currentProducts; // Almacenar productos actuales
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         productoDAO = new ProductoDAO();
         setupScrollPane();
+        setupResponsiveLayout();
         loadProducts();
     }
     
@@ -61,10 +66,39 @@ public class InventarioController implements Initializable {
         );
     }
     
+    private void setupResponsiveLayout() {
+        // Listener para cambios en el ancho del ScrollPane
+        scrollPane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if (currentProducts != null && !currentProducts.isEmpty()) {
+                    displayProducts(currentProducts);
+                }
+            }
+        });
+    }
+    
+    private int calculateOptimalColumns() {
+        double availableWidth = scrollPane.getWidth();
+        if (availableWidth <= 0) {
+            // Si aún no se ha inicializado el ancho, usar un valor por defecto
+            return 4;
+        }
+        
+        // Restar los márgenes y el espacio para la scrollbar
+        double usableWidth = availableWidth - MIN_MARGIN - 20; // 20px para scrollbar
+        
+        // Calcular el número máximo de columnas que caben
+        int columns = (int) Math.floor(usableWidth / CARD_WIDTH);
+        
+        // Asegurar que siempre haya al menos 1 columna
+        return Math.max(1, columns);
+    }
+    
     private void loadProducts() {
         try {
-            List<Producto> productos = productoDAO.obtenerTodos();
-            displayProducts(productos);
+            currentProducts = productoDAO.obtenerTodos();
+            displayProducts(currentProducts);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -72,6 +106,18 @@ public class InventarioController implements Initializable {
     
     private void displayProducts(List<Producto> productos) {
         inventoryGrid.getChildren().clear();
+        inventoryGrid.getColumnConstraints().clear();
+        
+        int optimalColumns = calculateOptimalColumns();
+        
+        // Configurar las restricciones de columna para distribución uniforme
+        for (int i = 0; i < optimalColumns; i++) {
+            ColumnConstraints columnConstraints = new ColumnConstraints();
+            columnConstraints.setPercentWidth(100.0 / optimalColumns);
+            columnConstraints.setFillWidth(true);
+            columnConstraints.setHgrow(Priority.ALWAYS);
+            inventoryGrid.getColumnConstraints().add(columnConstraints);
+        }
         
         int row = 0;
         int col = 0;
@@ -81,7 +127,7 @@ public class InventarioController implements Initializable {
             inventoryGrid.add(productCard, col, row);
             
             col++;
-            if (col >= COLUMNS) {
+            if (col >= optimalColumns) {
                 col = 0;
                 row++;
             }
@@ -94,15 +140,15 @@ public class InventarioController implements Initializable {
     
     private VBox createProductCard(Producto producto) {
         VBox card = new VBox();
-        card.setPrefWidth(260);
-        card.setPrefHeight(320);
+        card.setMaxWidth(Double.MAX_VALUE); // Permitir que la tarjeta se expanda
+        card.setPrefHeight(420);
         card.setAlignment(Pos.TOP_CENTER);
         card.setSpacing(10);
         card.setPadding(new Insets(15));
         
         // Estilo de la tarjeta
         card.setStyle(
-            "-fx-background-color: white; " +
+            "-fx-background-color: #1D1D1D; " +
             "-fx-background-radius: 15px; " +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
         );
@@ -117,16 +163,16 @@ public class InventarioController implements Initializable {
         nameLabel.setStyle(
             "-fx-font-size: 16px; " +
             "-fx-font-weight: bold; " +
-            "-fx-text-fill: #333333; " +
+            "-fx-text-fill: #FFFFFF; " +
             "-fx-text-alignment: center;"
         );
-        nameLabel.setMaxWidth(230);
+        nameLabel.setMaxWidth(Double.MAX_VALUE);
         
         // Cantidad en stock
         Label stockLabel = new Label(producto.getStockProducto() + " piezas");
         stockLabel.setStyle(
             "-fx-font-size: 14px; " +
-            "-fx-text-fill: #666666;"
+            "-fx-text-fill: #c2c2c2;"
         );
         
         // Precio
@@ -139,10 +185,10 @@ public class InventarioController implements Initializable {
         
         // Botón "Ver más detalles"
         Button detailsButton = new Button("Ver más detalles");
-        detailsButton.setPrefWidth(200);
+        detailsButton.setMaxWidth(Double.MAX_VALUE);
         detailsButton.setStyle(
             "-fx-background-color: transparent; " +
-            "-fx-text-fill: #666666; " +
+            "-fx-text-fill: #c2c2c2; " +
             "-fx-font-size: 12px; " +
             "-fx-underline: true; " +
             "-fx-border-color: transparent; " +
@@ -153,7 +199,7 @@ public class InventarioController implements Initializable {
         detailsButton.setOnMouseEntered(e -> 
             detailsButton.setStyle(
                 "-fx-background-color: transparent; " +
-                "-fx-text-fill: #333333; " +
+                "-fx-text-fill: #FFFFFF; " +
                 "-fx-font-size: 12px; " +
                 "-fx-underline: true; " +
                 "-fx-border-color: transparent; " +
@@ -164,7 +210,7 @@ public class InventarioController implements Initializable {
         detailsButton.setOnMouseExited(e -> 
             detailsButton.setStyle(
                 "-fx-background-color: transparent; " +
-                "-fx-text-fill: #666666; " +
+                "-fx-text-fill: #c2c2c2; " +
                 "-fx-font-size: 12px; " +
                 "-fx-underline: true; " +
                 "-fx-border-color: transparent; " +
@@ -178,7 +224,7 @@ public class InventarioController implements Initializable {
         // Agregar hover effect a la tarjeta completa
         card.setOnMouseEntered(e -> 
             card.setStyle(
-                "-fx-background-color: white; " +
+                "-fx-background-color: #1D1D1D; " +
                 "-fx-background-radius: 15px; " +
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 3); " +
                 "-fx-scale-x: 1.02; " +
@@ -188,7 +234,7 @@ public class InventarioController implements Initializable {
         
         card.setOnMouseExited(e -> 
             card.setStyle(
-                "-fx-background-color: white; " +
+                "-fx-background-color: #1D1D1D; " +
                 "-fx-background-radius: 15px; " +
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2); " +
                 "-fx-scale-x: 1.0; " +
@@ -305,14 +351,14 @@ public class InventarioController implements Initializable {
     
     private VBox createAddProductCard() {
         VBox card = new VBox();
-        card.setPrefWidth(260);
-        card.setPrefHeight(320);
+        card.setMaxWidth(Double.MAX_VALUE); // Permitir que la tarjeta se expanda
+        card.setPrefHeight(420);
         card.setAlignment(Pos.CENTER);
         card.setSpacing(15);
         
         // Estilo de la tarjeta
         card.setStyle(
-            "-fx-background-color: white; " +
+            "-fx-background-color: #1D1D1D; " +
             "-fx-background-radius: 15px; " +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
         );
@@ -338,7 +384,7 @@ public class InventarioController implements Initializable {
         // Hover effect
         card.setOnMouseEntered(e -> 
             card.setStyle(
-                "-fx-background-color: #f8f8f8; " +
+                "-fx-background-color: #2a2a2a; " +
                 "-fx-background-radius: 15px; " +
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 3); " +
                 "-fx-scale-x: 1.02; " +
@@ -348,7 +394,7 @@ public class InventarioController implements Initializable {
         
         card.setOnMouseExited(e -> 
             card.setStyle(
-                "-fx-background-color: white; " +
+                "-fx-background-color: #1D1D1D; " +
                 "-fx-background-radius: 15px; " +
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2); " +
                 "-fx-scale-x: 1.0; " +
