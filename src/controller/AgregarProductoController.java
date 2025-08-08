@@ -60,48 +60,135 @@ public class AgregarProductoController implements Initializable {
     private ProductoDAO productoDAO;
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        System.out.println("DEBUG - Iniciando initialize...");
-        
-        // Configurar validaciones (esto siempre debe ejecutarse)
-        configurarValidaciones();
-        System.out.println("DEBUG - Validaciones configuradas");
-        
-        try {
-            // Verificar conexión antes de inicializar DAOs
-            System.out.println("DEBUG - Verificando conexión...");
-            if (!verificarConexion()) {
-                System.err.println("ERROR - Conexión fallida");
-                mostrarError("Error de Conexión", 
-                    "No se pudo establecer conexión con la base de datos. " +
-                    "Los ComboBox estarán vacíos.");
-                return;
-            }
-            System.out.println("DEBUG - Conexión exitosa");
-            
-            // Inicializar DAOs
-            System.out.println("DEBUG - Inicializando DAOs...");
-            inicializarDAOs();
-            System.out.println("DEBUG - DAOs inicializados");
-            
-            // Generar ID automático
-            generarIdProducto();
-            System.out.println("DEBUG - ID generado: " + txtId.getText());
-            
-            // Cargar datos en ComboBox
-            System.out.println("DEBUG - Cargando datos en ComboBox...");
-            cargarCategorias();
-            cargarProveedores();
-            System.out.println("DEBUG - Initialize completado");
-            
-        } catch (Exception e) {
-            System.err.println("ERROR en initialize: " + e.getMessage());
-            e.printStackTrace();
-            mostrarError("Error de Inicialización", 
-                "Error al cargar los datos: " + e.getMessage());
+public void initialize(URL url, ResourceBundle resourceBundle) {
+    System.out.println("DEBUG - Iniciando initialize...");
+    
+    // Configurar validaciones (esto siempre debe ejecutarse)
+    configurarValidaciones();
+    System.out.println("DEBUG - Validaciones configuradas");
+    
+    try {
+        // Verificar conexión antes de inicializar DAOs
+        System.out.println("DEBUG - Verificando conexión...");
+        if (!verificarConexion()) {
+            System.err.println("ERROR - Conexión fallida");
+            mostrarError("Error de Conexión", 
+                "No se pudo establecer conexión con la base de datos. " +
+                "Los ComboBox estarán vacíos.");
+            return;
         }
+        System.out.println("DEBUG - Conexión exitosa");
+        
+        // Inicializar DAOs
+        System.out.println("DEBUG - Inicializando DAOs...");
+        inicializarDAOs();
+        System.out.println("DEBUG - DAOs inicializados");
+        
+        // Generar ID automático
+        generarIdProducto();
+        System.out.println("DEBUG - ID generado: " + txtId.getText());
+        
+        // Cargar datos en ComboBox
+        System.out.println("DEBUG - Cargando datos en ComboBox...");
+        cargarCategorias();
+        cargarProveedores();
+        
+        // NUEVA LÍNEA: Aplicar estilos a los ComboBox
+        aplicarEstilosComboBox();
+        System.out.println("DEBUG - Estilos de ComboBox aplicados");
+        // NUEVO: Aplicar estilos al TextArea
+        aplicarEstilosTextArea();
+        System.out.println("DEBUG - Estilos de TextArea aplicados");
+        
+        System.out.println("DEBUG - Initialize completado");
+        
+    } catch (Exception e) {
+        System.err.println("ERROR en initialize: " + e.getMessage());
+        e.printStackTrace();
+        mostrarError("Error de Inicialización", 
+            "Error al cargar los datos: " + e.getMessage());
     }
-
+}
+private void aplicarEstilosComboBox() {
+    // Aplicar estilos para que el texto del ComboBox sea blanco
+    String comboBoxStyle = "-fx-background-color: #3a3a3a; " +
+                          "-fx-text-fill: white; " +
+                          "-fx-prompt-text-fill: white; " +
+                          "-fx-border-color: #4a4a4a;";
+    
+    String comboBoxCellStyle = ".combo-box .list-cell { " +
+                              "-fx-text-fill: white; " +
+                              "-fx-background-color: #3a3a3a; " +
+                              "} " +
+                              ".combo-box .list-cell:filled:selected { " +
+                              "-fx-background-color: #4a4a4a; " +
+                              "-fx-text-fill: white; " +
+                              "} " +
+                              ".combo-box .list-cell:filled:hover { " +
+                              "-fx-background-color: #5a5a5a; " +
+                              "-fx-text-fill: white; " +
+                              "} " +
+                              ".combo-box .text { " +
+                              "-fx-fill: white; " +
+                              "} " +
+                              ".combo-box .arrow { " +
+                              "-fx-background-color: white; " +
+                              "}";
+    
+    // Aplicar el estilo base
+    cmbSeccion.setStyle(comboBoxStyle);
+    cmbProveedor.setStyle(comboBoxStyle);
+    
+    // Aplicar estilos adicionales para las celdas
+    try {
+        // Crear un estilo CSS temporal
+        String css = comboBoxCellStyle;
+        cmbSeccion.getScene().getStylesheets().add("data:text/css," + css);
+    } catch (Exception e) {
+        System.err.println("No se pudieron aplicar estilos avanzados: " + e.getMessage());
+    }
+    
+    // Alternativa: configurar el ButtonCell para mostrar texto en blanco
+    cmbSeccion.setButtonCell(new javafx.scene.control.ListCell<String>() {
+        @Override
+        protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText("Seleccione Sección");
+                setStyle("-fx-text-fill: white;");
+            } else {
+                setText(item);
+                setStyle("-fx-text-fill: white;");
+            }
+        }
+    });
+    
+    cmbProveedor.setButtonCell(new javafx.scene.control.ListCell<String>() {
+        @Override
+        protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setText("Seleccione Proveedor");
+                setStyle("-fx-text-fill: white;");
+            } else {
+                setText(item);
+                setStyle("-fx-text-fill: white;");
+            }
+        }
+    });
+}
+private void aplicarEstilosTextArea() {
+    // Estilos para que el texto del TextArea sea visible
+    String textAreaStyle = "-fx-background-color: #3a3a3a; " +
+                          "-fx-text-fill: white; " +
+                          "-fx-prompt-text-fill: #8a8a8a; " +
+                          "-fx-border-color: #4a4a4a; " +
+                          "-fx-control-inner-background: #3a3a3a; " +
+                          "-fx-focus-color: #6a6a6a; " +
+                          "-fx-faint-focus-color: transparent;";
+    
+    txtDetalles.setStyle(textAreaStyle);
+}
     // Método para verificar la conexión
     private boolean verificarConexion() {
         try {
@@ -669,6 +756,7 @@ public class AgregarProductoController implements Initializable {
         placeholderImagen.setVisible(true);
         archivoImagenSeleccionado = null;
         nombreImagenGuardada = null;
+        aplicarEstilosTextArea();
         
         generarIdProducto();
     }
