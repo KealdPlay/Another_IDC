@@ -26,6 +26,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
@@ -52,19 +53,22 @@ public class InventarioController implements Initializable {
         loadProducts();
     }
     
-    private void setupScrollPane() {
-        // Configurar el ScrollPane 
-        scrollPane.setFitToWidth(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        
-        // Estilo para las barras de scroll
-        scrollPane.setStyle(
-            "-fx-background: #1a1a1a; " +
-            "-fx-background-color: #1a1a1a; " +
-            "-fx-border-color: #1a1a1a;"
-        );
-    }
+private void setupScrollPane() {
+    // Configurar el ScrollPane 
+    scrollPane.setFitToWidth(true);
+    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    
+    // MODIFICADO: Estilo para las barras de scroll con color #333333
+    scrollPane.setStyle(
+        "-fx-background: #1a1a1a; " +
+        "-fx-background-color: #1a1a1a; " +
+        "-fx-border-color: #1a1a1a;"
+    );
+    
+    // NUEVO: Aplicar estilos CSS inline para la scrollbar
+    aplicarEstilosScrollbar();
+}
     
     private void setupResponsiveLayout() {
         // Listener para cambios en el ancho del ScrollPane
@@ -255,7 +259,7 @@ public class InventarioController implements Initializable {
         ImageView imageView = new ImageView();
         imageView.setFitWidth(120);
         imageView.setFitHeight(120);
-        imageView.setPreserveRatio(true);
+        imageView.setPreserveRatio(false);
         
         // Estilo del contenedor de la imagen
         imageView.setStyle(
@@ -490,8 +494,7 @@ public class InventarioController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("Detalles del Producto - " + producto.getNombreProducto());
             stage.setScene(scene);
-            stage.setResizable(true);
-            stage.setMaximized(false);
+            stage.setResizable(false);
             
             // Hacer la ventana modal (opcional)
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -527,4 +530,45 @@ public class InventarioController implements Initializable {
     public void setUsuarioActual(Usuarios usuario) {
         this.usuarioActual = usuario;
     }
+    private void aplicarEstilosScrollbar() {
+    // Esperar a que el ScrollPane esté completamente inicializado
+    Platform.runLater(() -> {
+        try {
+            // Estilo CSS para la scrollbar
+            String scrollBarStyle = 
+                ".scroll-pane { -fx-background-color: #1a1a1a; } " +
+                ".scroll-pane > .viewport { -fx-background-color: #1a1a1a; } " +
+                ".scroll-pane > .scroll-bar:vertical { -fx-background-color: #1a1a1a; -fx-padding: 0 2px 0 2px; } " +
+                ".scroll-pane > .scroll-bar:vertical > .track { -fx-background-color: #1a1a1a; -fx-background-radius: 8px; } " +
+                ".scroll-pane > .scroll-bar:vertical > .thumb { -fx-background-color: #333333; -fx-background-radius: 8px; } " +
+                ".scroll-pane > .scroll-bar:vertical > .thumb:hover { -fx-background-color: #444444; } " +
+                ".scroll-pane > .scroll-bar:vertical > .thumb:pressed { -fx-background-color: #555555; } " +
+                ".scroll-pane > .scroll-bar:vertical > .increment-button, .scroll-pane > .scroll-bar:vertical > .decrement-button { -fx-background-color: transparent; -fx-padding: 0; } " +
+                ".scroll-pane > .scroll-bar:vertical > .increment-arrow, .scroll-pane > .scroll-bar:vertical > .decrement-arrow { -fx-background-color: transparent; -fx-padding: 0; }";
+            
+            // Aplicar el estilo al scene
+            if (scrollPane.getScene() != null) {
+                scrollPane.getScene().getStylesheets().add("data:text/css;charset=utf-8," + java.net.URLEncoder.encode(scrollBarStyle, "UTF-8"));
+            } else {
+                // Si la scene no está disponible, esperar hasta que lo esté
+                scrollPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                    if (newScene != null) {
+                        try {
+                            newScene.getStylesheets().add("data:text/css;charset=utf-8," + java.net.URLEncoder.encode(scrollBarStyle, "UTF-8"));
+                        } catch (Exception e) {
+                            System.err.println("Error aplicando estilos de scrollbar: " + e.getMessage());
+                        }
+                    }
+                });
+            }
+        } catch (Exception e) {
+            System.err.println("No se pudieron aplicar estilos de scrollbar: " + e.getMessage());
+            // Fallback: aplicar estilo básico al ScrollPane directamente
+            scrollPane.setStyle(
+                scrollPane.getStyle() + 
+                "; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;"
+            );
+        }
+    });
+}
 }

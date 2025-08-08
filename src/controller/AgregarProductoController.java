@@ -558,113 +558,118 @@ private void aplicarEstilosTextArea() {
         }
     }
 
-    @FXML
-    private void guardarProducto() {
-        System.out.println("=== INICIANDO GUARDAR PRODUCTO ===");
-        
-        if (validarCampos()) {
-            System.out.println("Validación exitosa, procediendo a guardar...");
-            try {
-                // Verificar si el producto ya existe
-                int idProducto = Integer.parseInt(txtId.getText());
-                System.out.println("ID del producto: " + idProducto);
-                
-                if (productoDAO.existe(idProducto)) {
-                    mostrarError("Error", "Ya existe un producto con este ID");
-                    generarIdProducto();
-                    return;
-                }
-                
-                // Guardar imagen si fue seleccionada
-                String nombreImagenGuardada = null;
-                if (archivoImagenSeleccionado != null) {
-                    nombreImagenGuardada = ImageUtils.saveProductImage(archivoImagenSeleccionado, idProducto);
-                    if (nombreImagenGuardada == null) {
-                        mostrarError("Advertencia", "No se pudo guardar la imagen del producto. El producto se guardará sin imagen.");
-                    } else {
-                        System.out.println("Imagen guardada con nombre: " + nombreImagenGuardada);
-                    }
-                }
-                
-                // Obtener IDs de categoria y proveedor
-                String nombreCategoria = cmbSeccion.getValue();
-                String nombreProveedor = cmbProveedor.getValue();
-                
-                System.out.println("Obteniendo ID de categoría para: " + nombreCategoria);
-                int idCategoria = categoriaDAO.obtenerIdCategoria(nombreCategoria);
-                System.out.println("ID Categoría obtenido: " + idCategoria);
-                
-                System.out.println("Obteniendo ID de proveedor para: " + nombreProveedor);
-                int idProveedor = proveedorDAO.obtenerIdProveedor(nombreProveedor);
-                System.out.println("ID Proveedor obtenido: " + idProveedor);
-                
-                // Preparar valores
-                String nombre = txtNombre.getText().trim();
-                String detalles = txtDetalles.getText().trim();
-                String precioStr = txtPrecio.getText().trim();
-                String stockStr = txtStock.getText().trim();
-                String color = txtColor.getText().trim();
-                String medidas = txtMedidas.getText().trim();
-                
-                System.out.println("=== VALORES FINALES ===");
-                System.out.println("ID: " + idProducto);
-                System.out.println("Nombre: " + nombre);
-                System.out.println("Detalles: " + detalles);
-                System.out.println("Precio: " + precioStr);
-                System.out.println("Stock: " + stockStr);
-                System.out.println("Color: " + color);
-                System.out.println("Medidas: " + medidas);
-                System.out.println("ID Categoria: " + idCategoria);
-                System.out.println("ID Proveedor: " + idProveedor);
-                System.out.println("Imagen: " + nombreImagenGuardada);
-                
-                // Insertar producto con imagen
-                boolean guardado = productoDAO.insertarProducto(
-                    idProducto,
-                    nombre,
-                    detalles,
-                    Double.parseDouble(precioStr),
-                    Integer.parseInt(stockStr),
-                    color,
-                    medidas,
-                    idCategoria,
-                    idProveedor,
-                    nombreImagenGuardada
-                );
-                
-                if (guardado) {
-                    System.out.println("=== PRODUCTO GUARDADO EXITOSAMENTE ===");
-                    mostrarInfo("Éxito", "Producto guardado correctamente");
-                    limpiarFormulario();
-                } else {
-                    System.err.println("ERROR: No se pudo guardar el producto en la base de datos");
-                    // Si no se pudo guardar el producto, eliminar la imagen guardada
-                    if (nombreImagenGuardada != null) {
-                        ImageUtils.deleteProductImage(nombreImagenGuardada);
-                    }
-                    mostrarError("Error", "No se pudo guardar el producto");
-                }
-                
-            } catch (SQLException e) {
-                System.err.println("ERROR SQL: " + e.getMessage());
-                e.printStackTrace();
-                mostrarError("Error de Base de Datos", "Error al guardar el producto: " + e.getMessage());
-            } catch (NumberFormatException e) {
-                System.err.println("ERROR de formato: " + e.getMessage());
-                e.printStackTrace();
-                mostrarError("Error de Formato", 
-                    "Verifique el formato de los campos numéricos:\n" +
-                    "- Stock: debe ser un número entero (ej: 10)\n" +
-                    "- Precio: debe ser un número (ej: 69 o 69.50)");
-            } catch (Exception e) {
-                System.err.println("ERROR inesperado: " + e.getMessage());
-                e.printStackTrace();
-                mostrarError("Error", "Error inesperado: " + e.getMessage());
+@FXML
+private void guardarProducto() {
+    System.out.println("=== INICIANDO GUARDAR PRODUCTO ===");
+    
+    if (validarCampos()) {
+        System.out.println("Validación exitosa, procediendo a guardar...");
+        try {
+            // Verificar si el producto ya existe
+            int idProducto = Integer.parseInt(txtId.getText());
+            System.out.println("ID del producto: " + idProducto);
+            
+            if (productoDAO.existe(idProducto)) {
+                mostrarError("Error", "Ya existe un producto con este ID");
+                generarIdProducto();
+                return;
             }
-        } else {
-            System.out.println("Validación falló, no se procede a guardar");
+            
+            // Guardar imagen si fue seleccionada
+            String nombreImagenGuardada = null;
+            if (archivoImagenSeleccionado != null) {
+                nombreImagenGuardada = ImageUtils.saveProductImage(archivoImagenSeleccionado, idProducto);
+                if (nombreImagenGuardada == null) {
+                    mostrarError("Advertencia", "No se pudo guardar la imagen del producto. El producto se guardará sin imagen.");
+                } else {
+                    System.out.println("Imagen guardada con nombre: " + nombreImagenGuardada);
+                }
+            }
+            
+            // Obtener IDs de categoria y proveedor
+            String nombreCategoria = cmbSeccion.getValue();
+            String nombreProveedor = cmbProveedor.getValue();
+            
+            System.out.println("Obteniendo ID de categoría para: " + nombreCategoria);
+            int idCategoria = categoriaDAO.obtenerIdCategoria(nombreCategoria);
+            System.out.println("ID Categoría obtenido: " + idCategoria);
+            
+            System.out.println("Obteniendo ID de proveedor para: " + nombreProveedor);
+            int idProveedor = proveedorDAO.obtenerIdProveedor(nombreProveedor);
+            System.out.println("ID Proveedor obtenido: " + idProveedor);
+            
+            // Preparar valores
+            String nombre = txtNombre.getText().trim();
+            String detalles = txtDetalles.getText().trim();
+            String precioStr = txtPrecio.getText().trim();
+            String stockStr = txtStock.getText().trim();
+            String color = txtColor.getText().trim();
+            String medidas = txtMedidas.getText().trim();
+            
+            System.out.println("=== VALORES FINALES ===");
+            System.out.println("ID: " + idProducto);
+            System.out.println("Nombre: " + nombre);
+            System.out.println("Detalles: " + detalles);
+            System.out.println("Precio: " + precioStr);
+            System.out.println("Stock: " + stockStr);
+            System.out.println("Color: " + color);
+            System.out.println("Medidas: " + medidas);
+            System.out.println("ID Categoria: " + idCategoria);
+            System.out.println("ID Proveedor: " + idProveedor);
+            System.out.println("Imagen: " + nombreImagenGuardada);
+            
+            // Insertar producto con imagen
+            boolean guardado = productoDAO.insertarProducto(
+                idProducto,
+                nombre,
+                detalles,
+                Double.parseDouble(precioStr),
+                Integer.parseInt(stockStr),
+                color,
+                medidas,
+                idCategoria,
+                idProveedor,
+                nombreImagenGuardada
+            );
+            
+            if (guardado) {
+                System.out.println("=== PRODUCTO GUARDADO EXITOSAMENTE ===");
+                mostrarInfo("Éxito", "Producto guardado correctamente");
+                limpiarFormulario();
+                
+                // NUEVA LÍNEA: Cerrar la ventana después de guardar exitosamente
+                cerrarVentana();
+                
+            } else {
+                System.err.println("ERROR: No se pudo guardar el producto en la base de datos");
+                // Si no se pudo guardar el producto, eliminar la imagen guardada
+                if (nombreImagenGuardada != null) {
+                    ImageUtils.deleteProductImage(nombreImagenGuardada);
+                }
+                mostrarError("Error", "No se pudo guardar el producto");
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("ERROR SQL: " + e.getMessage());
+            e.printStackTrace();
+            mostrarError("Error de Base de Datos", "Error al guardar el producto: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.err.println("ERROR de formato: " + e.getMessage());
+            e.printStackTrace();
+            mostrarError("Error de Formato", 
+                "Verifique el formato de los campos numéricos:\n" +
+                "- Stock: debe ser un número entero (ej: 10)\n" +
+                "- Precio: debe ser un número (ej: 69 o 69.50)");
+        } catch (Exception e) {
+            System.err.println("ERROR inesperado: " + e.getMessage());
+            e.printStackTrace();
+            mostrarError("Error", "Error inesperado: " + e.getMessage());
         }
+    } else {
+        System.out.println("Validación falló, no se procede a guardar");
     }
+}
+
 
     private boolean validarCampos() {
         StringBuilder errores = new StringBuilder();
@@ -782,6 +787,16 @@ private void aplicarEstilosTextArea() {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
+    
+    private void cerrarVentana() {
+    try {
+        Stage stage = (Stage) btnGuardar.getScene().getWindow();
+        stage.close();
+        System.out.println("Ventana cerrada exitosamente");
+    } catch (Exception e) {
+        System.err.println("Error al cerrar la ventana: " + e.getMessage());
+    }
+}
 
     // Método para cerrar la conexión cuando se cierre la ventana
     public void cerrarConexion() {
