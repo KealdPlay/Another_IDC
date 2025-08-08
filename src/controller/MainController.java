@@ -678,7 +678,7 @@ private javafx.scene.layout.StackPane crearAvatarUsuario() {
     @FXML
     public void handleVerMasProductos(ActionEvent event) {
         System.out.println("Ver más productos clickeado");
-        handleReportes(event);
+        handleGestionInventario(event);
     }
     
     @FXML

@@ -50,27 +50,9 @@
                      <children>
                         <VBox alignment="CENTER" maxHeight="200.0" maxWidth="200.0" minHeight="150.0" minWidth="150.0" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: #4a4a4a; -fx-border-style: dashed; -fx-border-width: 2; -fx-background-color: transparent;">
                            <children>
-                              <ImageView fx:id="imageViewProducto" fitHeight="180.0" fitWidth="180.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                              <ImageView fx:id="imageViewProducto" fitHeight="154.0" fitWidth="180.0" pickOnBounds="true" preserveRatio="true" visible="false">
                               </ImageView>
-                              <Label text="Agregue una Foto" textFill="#8a8a8a">
-                                 <font>
-                                    <Font size="12.0" />
-                                 </font>
-                              </Label>
-                              <VBox fx:id="placeholderImagen" alignment="CENTER" spacing="10.0">
-                                 <children>
-                                    <ImageView fitHeight="40.0" fitWidth="40.0" opacity="0.6" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../icons/image-placeholder.png" />
-                                       </image>
-                                    </ImageView>
-                                    <Label text="del Producto" textFill="#8a8a8a">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
+                              <VBox fx:id="placeholderImagen" alignment="CENTER" spacing="10.0" />
                            </children>
                         </VBox>
                         <Button fx:id="btnSeleccionarImagen" maxWidth="300.0" mnemonicParsing="false" onAction="#seleccionarImagen" prefWidth="200.0" style="-fx-background-color: #4a4a4a; -fx-text-fill: white;" text="Seleccionar Imagen" />
@@ -113,7 +95,7 @@
                      <Label text="Sección:" textFill="WHITE" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.rowIndex="6" GridPane.valignment="CENTER" />
                      <HBox spacing="10.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6">
                         <children>
-                           <ComboBox fx:id="cmbSeccion" maxWidth="Infinity" promptText="Seleccione Sección" style="-fx-background-color: #3a3a3a;" HBox.hgrow="ALWAYS" />
+                           <ComboBox fx:id="cmbSeccion" maxWidth="Infinity" promptText="Seleccione Sección" style="-fx-background-color: #3a3a3a; -fx-text-fill: white; -fx-prompt-text-fill: #8a8a8a; -fx-border-color: #4a4a4a;" HBox.hgrow="ALWAYS" />
                            <Button fx:id="btnAgregarCategoria" minWidth="120.0" mnemonicParsing="false" onAction="#agregarCategoria" style="-fx-background-color: #3a3a3a; -fx-text-fill: white; -fx-prompt-text-fill: #8a8a8a; -fx-border-color: #4a4a4a;" text="Agregar Categoría" HBox.hgrow="NEVER" />
                         </children>
                      </HBox>
@@ -122,7 +104,7 @@
                      <Label text="Proveedor:" textFill="WHITE" GridPane.columnIndex="0" GridPane.halignment="LEFT" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
                      <HBox spacing="10.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7">
                         <children>
-                           <ComboBox fx:id="cmbProveedor" maxWidth="Infinity" promptText="Seleccione Proveedor" style="-fx-background-color: #3a3a3a;" HBox.hgrow="ALWAYS" />
+                           <ComboBox fx:id="cmbProveedor" maxWidth="Infinity" promptText="Seleccione Proveedor" style="-fx-background-color: #3a3a3a; -fx-text-fill: white; -fx-prompt-text-fill: #8a8a8a; -fx-border-color: #4a4a4a;" HBox.hgrow="ALWAYS" />
                            <Button fx:id="btnAgregarProveedor" minWidth="120.0" mnemonicParsing="false" onAction="#agregarProveedor" style="-fx-background-color: #3a3a3a; -fx-text-fill: white; -fx-prompt-text-fill: #8a8a8a; -fx-border-color: #4a4a4a;" text="Agregar Proveedor" HBox.hgrow="NEVER" />
                         </children>
                      </HBox>

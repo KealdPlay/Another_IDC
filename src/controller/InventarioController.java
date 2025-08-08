@@ -16,9 +16,11 @@ import javafx.scene.text.FontWeight;
 import dao.ProductoDAO;
 import entidades.Producto;
 import entidades.Usuarios;
+import utils.ImageUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -209,32 +211,96 @@ public class InventarioController implements Initializable {
         imageView.setFitHeight(120);
         imageView.setPreserveRatio(true);
         
+        // Estilo del contenedor de la imagen
+        imageView.setStyle(
+            "-fx-background-color: #f5f5f5; " +
+            "-fx-background-radius: 10px; " +
+            "-fx-border-color: #e0e0e0; " +
+            "-fx-border-radius: 10px; " +
+            "-fx-border-width: 1px;"
+        );
+        
         try {
-            // Si hay imágenes almacenadas en la base de datos o en una carpeta específica
-            // Aquí se puede cargar la imagen real del producto
-            // Por ahora, se usara una imagen placeholder basada en el tipo de producto
+            // Verificar si el producto tiene imagen guardada
+            String imagenProducto = producto.getImagenProducto();
+            
+            if (imagenProducto != null && !imagenProducto.trim().isEmpty()) {
+                // Intentar cargar la imagen guardada
+                String imageURL = ImageUtils.getImageURL(imagenProducto);
+                
+                if (imageURL != null) {
+                    Image productImage = new Image(imageURL);
+                    
+                    // Verificar que la imagen se cargó correctamente
+                    if (!productImage.isError()) {
+                        imageView.setImage(productImage);
+                        System.out.println("Imagen cargada para producto " + producto.getIdProducto() + ": " + imagenProducto);
+                        return imageView;
+                    } else {
+                        System.err.println("Error al cargar imagen: " + imagenProducto);
+                    }
+                } else {
+                    System.err.println("No se encontró el archivo de imagen: " + imagenProducto);
+                }
+            }
+            
+            // Si no hay imagen o no se pudo cargar, usar placeholder
             Image placeholderImage = getPlaceholderImage(producto.getNombreProducto());
-            imageView.setImage(placeholderImage);
+            if (placeholderImage != null && !placeholderImage.isError()) {
+                imageView.setImage(placeholderImage);
+            } else {
+                // Si no hay placeholder, crear un fondo gris con texto
+                setPlaceholderStyle(imageView);
+            }
+            
         } catch (Exception e) {
-            // Si no se puede cargar la imagen, usar un placeholder genérico
-            imageView.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 10px;");
+            System.err.println("Error al cargar imagen para producto " + producto.getIdProducto() + ": " + e.getMessage());
+            e.printStackTrace();
+            setPlaceholderStyle(imageView);
         }
         
         return imageView;
     }
     
+    /**
+     * Establece el estilo placeholder para imágenes que no se pueden cargar
+     */
+    private void setPlaceholderStyle(ImageView imageView) {
+        imageView.setStyle(
+            "-fx-background-color: #f0f0f0; " +
+            "-fx-background-radius: 10px; " +
+            "-fx-border-color: #e0e0e0; " +
+            "-fx-border-radius: 10px; " +
+            "-fx-border-width: 1px;"
+        );
+    }
+    
+    /**
+     * Obtiene una imagen placeholder desde recursos
+     */
     private Image getPlaceholderImage(String productName) {
-        // Aquí se puede implementar lógica para devolver diferentes imágenes
-        // basadas en el tipo de producto o usar imágenes almacenadas
-        String imagePath = "/images/placeholder.png"; // Ruta por defecto
-        
         try {
-            // Intentar cargar imagen específica del producto si existe
-            return new Image(getClass().getResourceAsStream(imagePath));
+            // Intentar cargar imagen placeholder desde recursos
+            String placeholderPath = "/images/placeholder-product.png";
+            URL placeholderURL = getClass().getResource(placeholderPath);
+            
+            if (placeholderURL != null) {
+                return new Image(placeholderURL.toExternalForm());
+            }
+            
+            // Si no existe el placeholder específico, intentar uno genérico
+            placeholderPath = "/images/placeholder.png";
+            placeholderURL = getClass().getResource(placeholderPath);
+            
+            if (placeholderURL != null) {
+                return new Image(placeholderURL.toExternalForm());
+            }
+            
         } catch (Exception e) {
-            // Crear un placeholder simple si no hay imagen
-            return null;
+            System.err.println("Error al cargar imagen placeholder: " + e.getMessage());
         }
+        
+        return null;
     }
     
     private VBox createAddProductCard() {

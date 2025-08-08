@@ -16,6 +16,7 @@ import entidades.Producto;
 import database.Conexion;
 import entidades.Categoria;
 import entidades.Proveedor;
+import utils.ImageUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,8 +41,6 @@ public class DetallesProductoController implements Initializable {
     @FXML
     private ImageView imageViewProducto;
     
-    @FXML
-    private VBox placeholderImagen;
     
     @FXML
     private Label lblNombre;
@@ -200,30 +199,50 @@ public class DetallesProductoController implements Initializable {
     
     private void cargarImagen() {
         try {
-            // Aquí podrías implementar la lógica para cargar imágenes desde archivos
-            // Por ahora, mostrar el placeholder
-            if (imageViewProducto != null && placeholderImagen != null) {
-                imageViewProducto.setVisible(false);
-                placeholderImagen.setVisible(true);
+            System.out.println("=== CARGAR IMAGEN PRODUCTO ===");
+            System.out.println("ID Producto: " + productoSeleccionado.getIdProducto());
+            System.out.println("Nombre imagen en BD: " + productoSeleccionado.getImagenProducto());
+            
+            // Verificar si el producto tiene imagen guardada
+            String imagenProducto = productoSeleccionado.getImagenProducto();
+            
+            if (imagenProducto != null && !imagenProducto.trim().isEmpty()) {
+                // Intentar cargar la imagen guardada
+                String imageURL = ImageUtils.getImageURL(imagenProducto);
+                System.out.println("URL imagen generada: " + imageURL);
+                
+                if (imageURL != null) {
+                    Image productImage = new Image(imageURL);
+                    
+                    // Verificar que la imagen se cargó correctamente
+                    if (!productImage.isError()) {
+                        imageViewProducto.setImage(productImage);
+                        imageViewProducto.setVisible(true);
+                        
+                        System.out.println("✓ Imagen cargada exitosamente para producto " + productoSeleccionado.getIdProducto());
+                        return;
+                    } else {
+                        System.err.println("✗ Error al cargar imagen desde URL: " + imageURL);
+                        System.err.println("Error de imagen: " + productImage.getException());
+                    }
+                } else {
+                    System.err.println("✗ No se encontró el archivo de imagen: " + imagenProducto);
+                    // Verificar si el archivo existe físicamente
+                    String imagePath = ImageUtils.getImagePath(imagenProducto);
+                    System.err.println("Ruta verificada: " + imagePath);
+                    System.err.println("Archivo existe: " + ImageUtils.imageExists(imagenProducto));
+                }
+            } else {
+                System.out.println("! No hay imagen guardada para este producto");
             }
             
-            // Si tienes imágenes almacenadas, puedes usar algo como:
-            // String rutaImagen = "/imagenes/productos/" + productoSeleccionado.getIdProducto() + ".jpg";
-            // Image imagen = new Image(getClass().getResourceAsStream(rutaImagen));
-            // if (imagen != null && !imagen.isError()) {
-            //     imageViewProducto.setImage(imagen);
-            //     imageViewProducto.setVisible(true);
-            //     placeholderImagen.setVisible(false);
-            // }
+            
         } catch (Exception e) {
-            System.err.println("Error al cargar imagen: " + e.getMessage());
-            // Mostrar placeholder en caso de error
-            if (imageViewProducto != null && placeholderImagen != null) {
-                imageViewProducto.setVisible(false);
-                placeholderImagen.setVisible(true);
-            }
+            System.err.println("ERROR inesperado al cargar imagen: " + e.getMessage());
+            e.printStackTrace();
         }
     }
+    
     
    
     @FXML

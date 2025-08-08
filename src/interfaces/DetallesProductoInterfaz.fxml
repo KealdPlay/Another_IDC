@@ -49,20 +49,6 @@
                            <children>
                               <ImageView fx:id="imageViewProducto" fitHeight="180.0" fitWidth="180.0" pickOnBounds="true" preserveRatio="true">
                               </ImageView>
-                              <VBox fx:id="placeholderImagen" alignment="CENTER" spacing="10.0" visible="false">
-                                 <children>
-                                    <ImageView fitHeight="40.0" fitWidth="40.0" opacity="0.6" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../icons/image-placeholder.png" />
-                                       </image>
-                                    </ImageView>
-                                    <Label text="Sin imagen" textFill="#8a8a8a">
-                                       <font>
-                                          <Font size="12.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </VBox>
                            </children>
                         </VBox>
                      </children>
