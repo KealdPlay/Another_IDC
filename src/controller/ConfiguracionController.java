@@ -18,6 +18,20 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javafx.scene.layout.StackPane;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.WritableImage;
+
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.WritableImage;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
+import javafx.geometry.VPos;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.net.URL;
@@ -63,10 +77,13 @@ public class ConfiguracionController {
         lblContrasenaVisible.setText(usuario.getContraseña_usuario());
     }
 
-    private void cargarAvatarUsuario() {
-        String rutaImagen = "src/view/img/perfil.png";
-        
-        // Intentar leer la ruta personalizada del archivo de texto
+private void cargarAvatarUsuario() {
+    String rutaImagen = "src/view/img/perfil.png";
+    
+    System.out.println("Cargando avatar para usuario: " + (usuario != null ? usuario.getNombre_usuario() : "null"));
+    
+    // Intentar leer la ruta personalizada del archivo de texto
+    if (usuario != null) {
         File archivoRuta = new File("foto_usuario" + usuario.getId_usuario() + ".txt");
         if (archivoRuta.exists()) {
             try (Scanner scanner = new Scanner(archivoRuta)) {
@@ -74,47 +91,161 @@ public class ConfiguracionController {
                     String rutaGuardada = scanner.nextLine().trim();
                     if (new File(rutaGuardada).exists()) {
                         rutaImagen = rutaGuardada;
+                        System.out.println("Ruta personalizada encontrada: " + rutaImagen);
                     }
                 }
             } catch (Exception e) {
                 System.err.println("Error al leer ruta de imagen: " + e.getMessage());
             }
         }
+    }
 
-        try {
-            Image imagen = null;
-            
-            // Manejar diferentes tipos de rutas
-            if (rutaImagen.startsWith("src/")) {
-                // Para imágenes de recursos internos
-                String resourcePath = "/" + rutaImagen.substring(4);
-                imagen = new Image(getClass().getResourceAsStream(resourcePath));
+    boolean imagenCargada = false;
+
+    try {
+        Image imagen = null;
+        
+        // Manejar diferentes tipos de rutas
+        if (rutaImagen.startsWith("src/")) {
+            // Para imágenes de recursos internos
+            String resourcePath = "/" + rutaImagen.substring(4);
+            System.out.println("Cargando recurso interno: " + resourcePath);
+            imagen = new Image(getClass().getResourceAsStream(resourcePath));
+        } else {
+            // Para imágenes externas seleccionadas por el usuario
+            File archivoImagen = new File(rutaImagen);
+            if (archivoImagen.exists()) {
+                System.out.println("Cargando imagen externa: " + rutaImagen);
+                imagen = new Image(archivoImagen.toURI().toString());
             } else {
-                // Para imágenes externas seleccionadas por el usuario
-                File archivoImagen = new File(rutaImagen);
-                if (archivoImagen.exists()) {
-                    imagen = new Image(archivoImagen.toURI().toString());
-                } else {
-                    // Cargar imagen por defecto
+                System.out.println("Imagen externa no encontrada, intentando recurso por defecto");
+                // Intentar cargar imagen por defecto
+                try {
                     imagen = new Image(getClass().getResourceAsStream("/view/img/perfil.png"));
+                } catch (Exception e) {
+                    System.out.println("No se pudo cargar imagen por defecto");
                 }
             }
+        }
 
-            if (imagen != null && !imagen.isError()) {
-                avatar.setImage(imagen);
-                avatar.setFitWidth(120);
-                avatar.setFitHeight(120);
-                avatar.setPreserveRatio(false);
-                avatar.setSmooth(true);
-                
-                // Aplicar máscara circular
-                Circle clip = new Circle(60, 60, 60);
-                avatar.setClip(clip);
+        if (imagen != null && !imagen.isError()) {
+            avatar.setImage(imagen);
+            avatar.setFitWidth(120);
+            avatar.setFitHeight(120);
+            avatar.setPreserveRatio(false);
+            avatar.setSmooth(true);
+            
+            // Aplicar máscara circular
+            Circle clip = new Circle(60, 60, 60);
+            avatar.setClip(clip);
+            imagenCargada = true;
+            System.out.println("Imagen cargada exitosamente");
+        } else {
+            System.out.println("La imagen es null o tiene error");
+        }
+    } catch (Exception e) {
+        System.err.println("Error al cargar imagen de perfil: " + e.getMessage());
+        e.printStackTrace();
+    }
+
+    // Si no se pudo cargar ninguna imagen, crear avatar predeterminado
+    if (!imagenCargada) {
+        System.out.println("No se pudo cargar imagen, creando avatar predeterminado");
+        crearAvatarPredeterminadoSimple();
+    }
+}
+
+private void crearAvatarPredeterminadoSimple() {
+    System.out.println("Creando avatar predeterminado simple");
+    
+    try {
+        // Crear una imagen programáticamente usando Canvas
+        javafx.scene.canvas.Canvas canvas = new javafx.scene.canvas.Canvas(120, 120);
+        javafx.scene.canvas.GraphicsContext gc = canvas.getGraphicsContext2D();
+        
+        // Limpiar el canvas
+        gc.clearRect(0, 0, 120, 120);
+        
+        // Dibujar círculo de fondo
+        gc.setFill(Color.web("#4FD1C7"));
+        gc.fillOval(0, 0, 120, 120);
+        
+        // Dibujar borde blanco
+        gc.setStroke(Color.WHITE);
+        gc.setLineWidth(3);
+        gc.strokeOval(1.5, 1.5, 117, 117);
+        
+        // Dibujar inicial o icono
+        gc.setFill(Color.WHITE);
+        gc.setFont(javafx.scene.text.Font.font("System", javafx.scene.text.FontWeight.BOLD, 48));
+        gc.setTextAlign(javafx.scene.text.TextAlignment.CENTER);
+        gc.setTextBaseline(javafx.geometry.VPos.CENTER);
+        
+        String textoAMostrar;
+        if (usuario != null && usuario.getNombre_usuario() != null && !usuario.getNombre_usuario().trim().isEmpty()) {
+            String nombreUsuario = usuario.getNombre_usuario().trim();
+            textoAMostrar = String.valueOf(nombreUsuario.charAt(0)).toUpperCase();
+            System.out.println("Dibujando inicial: " + textoAMostrar);
+        } else {
+            textoAMostrar = "?";
+            System.out.println("Usuario sin nombre válido, usando '?'");
+        }
+        
+        gc.fillText(textoAMostrar, 60, 60);
+        
+        // Convertir canvas a imagen
+        javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
+        params.setFill(Color.TRANSPARENT);
+        javafx.scene.image.WritableImage writableImage = canvas.snapshot(params, null);
+        
+        // Asignar al avatar
+        avatar.setImage(writableImage);
+        avatar.setFitWidth(120);
+        avatar.setFitHeight(120);
+        avatar.setPreserveRatio(false);
+        avatar.setSmooth(true);
+        
+        // Aplicar máscara circular
+        Circle clip = new Circle(60, 60, 60);
+        avatar.setClip(clip);
+        
+        System.out.println("Avatar predeterminado creado exitosamente usando Canvas");
+        
+    } catch (Exception e) {
+        System.err.println("Error al crear avatar predeterminado: " + e.getMessage());
+        e.printStackTrace();
+        
+        // Como último último recurso, crear una imagen sólida simple
+        try {
+            javafx.scene.image.WritableImage imagenSimple = new javafx.scene.image.WritableImage(120, 120);
+            javafx.scene.image.PixelWriter pw = imagenSimple.getPixelWriter();
+            
+            // Llenar con color verde agua
+            Color colorFondo = Color.web("#4FD1C7");
+            for (int x = 0; x < 120; x++) {
+                for (int y = 0; y < 120; y++) {
+                    // Crear círculo
+                    double distanceFromCenter = Math.sqrt(Math.pow(x - 60, 2) + Math.pow(y - 60, 2));
+                    if (distanceFromCenter <= 60) {
+                        pw.setColor(x, y, colorFondo);
+                    } else {
+                        pw.setColor(x, y, Color.TRANSPARENT);
+                    }
+                }
             }
-        } catch (Exception e) {
-            System.err.println("Error al cargar imagen de perfil: " + e.getMessage());
+            
+            avatar.setImage(imagenSimple);
+            avatar.setFitWidth(120);
+            avatar.setFitHeight(120);
+            
+            System.out.println("Avatar básico creado como último recurso");
+            
+        } catch (Exception ex) {
+            System.err.println("Error crítico creando avatar: " + ex.getMessage());
+            avatar.setVisible(false);
         }
     }
+}
 
     @FXML
     private void handleVolver() {

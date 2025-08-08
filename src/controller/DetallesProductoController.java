@@ -32,6 +32,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 
 public class DetallesProductoController implements Initializable {
 
@@ -78,6 +79,9 @@ public class DetallesProductoController implements Initializable {
     // Variable para almacenar el producto seleccionado
     private Producto productoSeleccionado;
     
+    // Variable para almacenar el proveedor actual
+    private Proveedor proveedorActual;
+    
     // DAOs
     private ProductoDAO productoDAO;
     private CategoriaDAO categoriaDAO;
@@ -89,6 +93,66 @@ public class DetallesProductoController implements Initializable {
         productoDAO = new ProductoDAO();
         categoriaDAO = new CategoriaDAO();
         proveedorDAO = new ProveedorDAO();
+        
+        // Configurar el label del proveedor para que sea clickeable
+        configurarLabelProveedorClickeable();
+    }
+    
+    /**
+     * Configura el label del proveedor para que sea clickeable y muestre cursor de mano
+     */
+    private void configurarLabelProveedorClickeable() {
+        lblProveedor.setStyle("-fx-text-fill: #4A90E2; -fx-cursor: hand;");
+        lblProveedor.setOnMouseClicked(event -> mostrarInfoProveedor());
+        
+        // Efecto hover
+        lblProveedor.setOnMouseEntered(event -> {
+            lblProveedor.setStyle("-fx-text-fill: #357ABD; -fx-cursor: hand; -fx-underline: true;");
+        });
+        
+        lblProveedor.setOnMouseExited(event -> {
+            lblProveedor.setStyle("-fx-text-fill: #4A90E2; -fx-cursor: hand;");
+        });
+    }
+    
+    /**
+     * Método para mostrar la ventana emergente con información del proveedor
+     */
+    private void mostrarInfoProveedor() {
+        if (proveedorActual == null) {
+            mostrarError("No hay información del proveedor disponible.");
+            return;
+        }
+        
+        try {
+            // Cargar el FXML de la ventana de información del proveedor
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/InfoProveedorVEInterfaz.fxml"));
+            Parent root = loader.load();
+            
+            // Obtener el controlador
+            InfoProveedorVEController controller = loader.getController();
+            
+            // Crear nueva ventana
+            Stage ventanaInfo = new Stage();
+            ventanaInfo.initModality(Modality.APPLICATION_MODAL);
+            ventanaInfo.setTitle("Información del Proveedor");
+            ventanaInfo.setResizable(false);
+            
+            // Configurar la escena
+            Scene scene = new Scene(root);
+            ventanaInfo.setScene(scene);
+            
+            // Pasar los datos al controlador
+            controller.setProveedor(proveedorActual);
+            controller.setStage(ventanaInfo);
+            
+            // Mostrar la ventana
+            ventanaInfo.showAndWait();
+            
+        } catch (IOException e) {
+            System.err.println("Error al cargar la ventana de información del proveedor: " + e.getMessage());
+            mostrarError("Error al mostrar la información del proveedor.");
+        }
     }
     
     /**
@@ -181,17 +245,20 @@ public class DetallesProductoController implements Initializable {
     private void cargarProveedor() {
         try {
             if (productoSeleccionado.getIdProveedor() > 0) {
-                Proveedor proveedor = proveedorDAO.obtenerPorId(productoSeleccionado.getIdProveedor());
-                if (proveedor != null) {
-                    lblProveedor.setText(proveedor.getNombreProveedor());
+                proveedorActual = proveedorDAO.obtenerPorId(productoSeleccionado.getIdProveedor());
+                if (proveedorActual != null) {
+                    lblProveedor.setText(proveedorActual.getNombreProveedor());
                 } else {
                     lblProveedor.setText("Proveedor no encontrado");
+                    proveedorActual = null;
                 }
             } else {
                 lblProveedor.setText("Sin proveedor");
+                proveedorActual = null;
             }
         } catch (Exception e) {
             lblProveedor.setText("Error al cargar proveedor");
+            proveedorActual = null;
             System.err.println("Error al cargar proveedor: " + e.getMessage());
         }
     }

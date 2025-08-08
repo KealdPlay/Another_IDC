@@ -7,69 +7,88 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.InfoProveedorVEController">
    <children>
-      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="300.0" spacing="15.0" style="-fx-background-color: #2c2c2c; -fx-background-radius: 15; -fx-border-radius: 15;">
+      <VBox alignment="CENTER" prefHeight="280.0" prefWidth="400.0" spacing="20.0" 
+            style="-fx-background-color: #2c2c2c; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 3);">
          <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
          </padding>
          <children>
+            <!-- Título -->
             <Label text="Información del Proveedor" textFill="WHITE">
                <font>
-                  <Font name="System Bold" size="16.0" />
+                  <Font name="System Bold" size="18.0" />
                </font>
             </Label>
             
-            <VBox alignment="CENTER_LEFT" spacing="8.0">
+            <!-- Línea separadora -->
+            <Region prefHeight="1.0" style="-fx-background-color: #4a4a4a;" />
+            
+            <!-- Información del proveedor -->
+            <VBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #3a3a3a;">
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
                <children>
-                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                  <!-- Nombre del proveedor -->
+                  <VBox spacing="5.0">
                      <children>
                         <Label text="Proveedor:" textFill="#CCCCCC">
                            <font>
-                              <Font name="System Bold" size="12.0" />
+                              <Font name="System Bold" size="13.0" />
                            </font>
                         </Label>
-                        <Label fx:id="lblNombreProveedor" text="Nombre Proveedor" textFill="WHITE">
+                        <Label fx:id="lblNombreProveedor" text="Nombre Proveedor" textFill="WHITE" 
+                               style="-fx-background-color: #4a4a4a; -fx-padding: 8;">
                            <font>
-                              <Font size="12.0" />
+                              <Font size="14.0" />
                            </font>
                         </Label>
                      </children>
-                  </HBox>
+                  </VBox>
                   
-                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                  <!-- Correo del proveedor -->
+                  <VBox spacing="5.0">
                      <children>
                         <Label text="Correo:" textFill="#CCCCCC">
                            <font>
-                              <Font name="System Bold" size="12.0" />
+                              <Font name="System Bold" size="13.0" />
                            </font>
                         </Label>
-                        <Label fx:id="lblCorreoProveedor" text="correo@ejemplo.com" textFill="WHITE">
+                        <Label fx:id="lblCorreoProveedor" text="correo@ejemplo.com" textFill="#4A90E2" 
+                               style="-fx-background-color: #4a4a4a; -fx-padding: 8;">
                            <font>
-                              <Font size="12.0" />
+                              <Font size="14.0" />
                            </font>
                         </Label>
                      </children>
-                  </HBox>
+                  </VBox>
                   
-                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                  <!-- Teléfono del proveedor -->
+                  <VBox spacing="5.0">
                      <children>
                         <Label text="Teléfono:" textFill="#CCCCCC">
                            <font>
-                              <Font name="System Bold" size="12.0" />
+                              <Font name="System Bold" size="13.0" />
                            </font>
                         </Label>
-                        <Label fx:id="lblTelefonoProveedor" text="000 000 0000" textFill="WHITE">
+                        <Label fx:id="lblTelefonoProveedor" text="000 000 0000" textFill="WHITE" 
+                               style="-fx-background-color: #4a4a4a; -fx-padding: 8;">
                            <font>
-                              <Font size="12.0" />
+                              <Font size="14.0" />
                            </font>
                         </Label>
                      </children>
-                  </HBox>
+                  </VBox>
                </children>
             </VBox>
             
-            <Button fx:id="btnCerrar" mnemonicParsing="false" onAction="#cerrarVentana" style="-fx-background-color: #4A90E2; -fx-text-fill: white; -fx-background-radius: 5;" text="Cerrar">
+            <!-- Botón cerrar -->
+            <Button fx:id="btnCerrar" mnemonicParsing="false" onAction="#cerrarVentana" 
+                    prefWidth="120.0" 
+                    style="-fx-background-color: #4A90E2; -fx-text-fill: white; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);" 
+                    text="Cerrar">
                <font>
-                  <Font size="12.0" />
+                  <Font size="14.0" />
                </font>
             </Button>
          </children>
