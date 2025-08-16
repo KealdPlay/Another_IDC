@@ -8,7 +8,9 @@
             <file>file:/D:/another_IDC/Another_IDC/src/controller/DetallesProductoController.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/controller/InfoProveedorVEController.java</file>
             <file>file:/D:/another_IDC/Another_IDC/src/dao/ProductoDAO.java</file>
-            <file>file:/D:/another_IDC/Another_IDC/src/interfaces/Configuracion-view.fxml</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/controller/MainController.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/controller/ReportesInterfaces.java</file>
+            <file>file:/D:/another_IDC/Another_IDC/src/database/Conexion.java</file>
         </group>
     </open-files>
 </project-private>

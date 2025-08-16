@@ -29,6 +29,9 @@ import java.io.IOException;
 import java.io.File;
 import java.util.Scanner;
 import java.math.BigDecimal;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Tooltip;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -110,6 +113,9 @@ public void inicializarConUsuario(Usuarios usuario) {
     this.usuarioActual = usuario;
     cargarInformacionUsuario();
     
+    // Configurar permisos de UI basados en el rol del usuario
+    configurarPermisosUI();
+    
     // Reconfigurar el menú ahora que tenemos el usuario
     configurarMenuItems();
     
@@ -119,6 +125,50 @@ public void inicializarConUsuario(Usuarios usuario) {
     });
     
     System.out.println("Usuario inicializado: " + usuario.getNombre_usuario() + ", ID: " + usuario.getId_usuario()); // Debug
+}
+
+private void configurarPermisosUI() {
+    if (usuarioActual == null) return;
+    
+    // Verificar si el usuario tiene permisos para reportes
+    boolean puedeAccederReportes = usuarioActual.getId_rol() == 1; // Solo Owner
+    
+    if (btnReportes != null) {
+        if (!puedeAccederReportes) {
+            // Cambiar el estilo del botón para indicar que no está disponible
+            btnReportes.setStyle(
+                "-fx-background-radius: 10; " +
+                "-fx-background-color: #505050; " + // Color gris para indicar deshabilitado
+                "-fx-text-fill: #888888; " +
+                "-fx-opacity: 0.6;"
+            );
+            
+            // Cambiar el texto del botón para indicar restricción
+            btnReportes.setText("Reportes (Solo Owner)");
+            
+            // Opcional: Mostrar tooltip con información
+            javafx.scene.control.Tooltip tooltip = new javafx.scene.control.Tooltip(
+                "Esta función requiere permisos de Owner"
+            );
+            tooltip.setStyle(
+                "-fx-background-color: #333333; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 12px;"
+            );
+            btnReportes.setTooltip(tooltip);
+        } else {
+            // Mantener el estilo normal para usuarios con permisos
+            btnReportes.setStyle(
+                "-fx-background-radius: 10; " +
+                "-fx-background-color: #3a6560; " +
+                "-fx-text-fill: white;"
+            );
+            btnReportes.setText("Ir a Reportes de Inventario");
+        }
+    }
+    
+    System.out.println("Permisos configurados - Usuario: " + usuarioActual.getNombre_usuario() + 
+                      ", Puede acceder a reportes: " + puedeAccederReportes);
 }
 
 // Nuevo método que NO accede a Scene/Window
@@ -710,33 +760,40 @@ private javafx.scene.layout.StackPane crearAvatarUsuario() {
         }
     }
     
-    @FXML
-    public void handleReportes(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/ReportesInterfaces-view.fxml"));
-            Scene scene = new Scene(loader.load());
-            
-            ReportesInterfaces reportesController = loader.getController();
-            reportesController.inicializarConUsuario(usuarioActual);
-            
-            Stage stage = new Stage();
-            stage.setTitle("IDC - Reportes de Inventario");
-            stage.setScene(scene);
-            stage.setMaximized(true);
-            stage.show();
-            
-            if (clockTimeline != null) {
-                clockTimeline.stop();
-            }
-            
-            Stage currentStage = (Stage) btnReportes.getScene().getWindow();
-            currentStage.close();
-            
-        } catch (IOException e) {
-            System.err.println("Error al cargar la ventana de reportes: " + e.getMessage());
-            e.printStackTrace();
-        }
+@FXML
+public void handleReportes(ActionEvent event) {
+    // Verificar permisos de usuario antes de acceder a reportes
+    if (!tienePermisosParaReportes()) {
+        mostrarAlertaSinPermisos();
+        return;
     }
+    
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/interfaces/ReportesInterfaces-view.fxml"));
+        Scene scene = new Scene(loader.load());
+        
+        ReportesInterfaces reportesController = loader.getController();
+        reportesController.inicializarConUsuario(usuarioActual);
+        
+        Stage stage = new Stage();
+        stage.setTitle("IDC - Reportes de Inventario");
+        stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.show();
+        
+        if (clockTimeline != null) {
+            clockTimeline.stop();
+        }
+        
+        Stage currentStage = (Stage) btnReportes.getScene().getWindow();
+        currentStage.close();
+        
+    } catch (IOException e) {
+        System.err.println("Error al cargar la ventana de reportes: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
     
     public void volverALogin() {
         try {
@@ -760,6 +817,40 @@ private javafx.scene.layout.StackPane crearAvatarUsuario() {
             e.printStackTrace();
         }
     }
+    
+    private boolean tienePermisosParaReportes() {
+    if (usuarioActual == null) {
+        System.out.println("Usuario actual es nulo");
+        return false;
+    }
+    
+    // Solo el Owner (id_rol = 1) puede acceder a reportes
+    boolean tienePermisos = usuarioActual.getId_rol() == 1;
+    System.out.println("Usuario: " + usuarioActual.getNombre_usuario() + 
+                      ", Rol ID: " + usuarioActual.getId_rol() + 
+                      ", Tiene permisos: " + tienePermisos);
+    
+    return tienePermisos;
+}
+
+private void mostrarAlertaSinPermisos() {
+    Alert alert = new Alert(AlertType.WARNING);
+    alert.setTitle("Acceso Denegado");
+    alert.setHeaderText("Permisos Insuficientes");
+    
+    String mensaje = "No tienes permisos suficientes para acceder a los Reportes de Inventario.\n\n" +
+                    "Esta función está disponible únicamente para usuarios con rol de Owner.\n" +
+                    "Contacta a tu administrador si necesitas acceso a esta funcionalidad.";
+    
+    alert.setContentText(mensaje);
+    
+    // Personalizar el estilo de la alerta para que coincida con el tema oscuro
+    alert.getDialogPane().getStylesheets().add(
+        getClass().getResource("/styles/alert-style.css").toExternalForm()
+    );
+    
+    alert.showAndWait();
+}
     
     public void cleanup() {
         if (clockTimeline != null) {

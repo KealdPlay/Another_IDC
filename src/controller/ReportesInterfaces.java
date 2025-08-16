@@ -12,12 +12,15 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import javafx.application.Platform;
 
 public class ReportesInterfaces extends Application {
     
@@ -48,10 +51,51 @@ public class ReportesInterfaces extends Application {
  // Variable para mantener referencia al usuario actual
     private Usuarios usuarioActual;
     
-    // Método para inicializar con usuario
-    public void inicializarConUsuario(Usuarios usuario) {
-        this.usuarioActual = usuario;
+public void inicializarConUsuario(Usuarios usuario) {
+    this.usuarioActual = usuario;
+    
+    // Validación adicional de seguridad
+    if (!validarPermisos(usuario)) {
+        mostrarErrorPermisos();
+        return;
     }
+    
+    System.out.println("Acceso a reportes autorizado para: " + usuario.getNombre_usuario());
+}
+
+private boolean validarPermisos(Usuarios usuario) {
+    if (usuario == null) {
+        System.err.println("Usuario nulo intentando acceder a reportes");
+        return false;
+    }
+    
+    // Solo Owner (id_rol = 1) puede acceder
+    if (usuario.getId_rol() != 1) {
+        System.err.println("Usuario sin permisos intentando acceder a reportes: " + 
+                          usuario.getNombre_usuario() + " (Rol: " + usuario.getId_rol() + ")");
+        return false;
+    }
+    
+    return true;
+}
+
+// Nuevo método para mostrar error de permisos
+private void mostrarErrorPermisos() {
+    Alert alert = new Alert(AlertType.ERROR);
+    alert.setTitle("Error de Seguridad");
+    alert.setHeaderText("Acceso No Autorizado");
+    alert.setContentText("Ha ocurrido un error de seguridad. No tienes permisos para acceder a esta sección.");
+    
+    alert.showAndWait();
+    
+    // Cerrar la ventana inmediatamente
+    Platform.runLater(() -> {
+        if (backButton != null && backButton.getScene() != null) {
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            stage.close();
+        }
+    });
+}
     
     @Override
     public void start(Stage primaryStage) {
